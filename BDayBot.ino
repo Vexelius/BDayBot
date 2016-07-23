@@ -200,34 +200,14 @@ void setup(){
 }
 
 void loop(){
-/*  
- if(spriteTst==true)
-  {
-  m.writeSprite(0, 0, shnyLEye);
-  m.writeSprite(8, 0, shnyREye);
-  delay(1000);
-  m.writeSprite(0, 0, clsdEyes);
-  m.writeSprite(8, 0, clsdEyes);
-  delay(500);
-  //spriteTst=false;
-  }
-  */
+  // Start tracking the elapsed time
   unsigned long currentMillis = millis();
-  
+
+  // Draw the animation's frames to the led matrix
   if(currentMillis - previousMillis >= expFrameChange[frameCounter])
   {
-/*  if(frameCounter == 0)
-  {
-    m.writeSprite(0, 0, nrmlLEye);
-    m.writeSprite(8, 0, nrmlREye);
-  }
-  if(frameCounter == 1)
-  {
-    m.writeSprite(0, 0, blnkEyes);
-    m.writeSprite(8, 0, blnkEyes);
-  }*/
-  m.writeSprite(0, 0, frameIndex[expFrame]);
-  m.writeSprite(8, 0, frameIndex[expFrame+1]);
+    m.writeSprite(0, 0, frameIndex[expFrame]);
+    m.writeSprite(8, 0, frameIndex[expFrame+1]);
   
     previousMillis = currentMillis;  // Remember the time
     if(expFrameChange[frameCounter+1] > 0) 
