@@ -196,11 +196,16 @@ void loop(){
   // Draw the animation's frames to the led matrix  
   if(currentMillis - previousMillis >= expFrameChange[frameCounter])
   {
-    if(expFrameChange[frameCounter+1] == 0) // The end of the animation is defined by setting the next frame change interval to 0
+    if(expFrameChange[frameCounter+1] == 0) // The end frame of a looping animation is defined by setting the next frame change interval to 0
     {
     //If you have reached the last frame, go back to the first one
       frameCounter = 0;
       expFrame = 0;
+    }
+    if(expFrameChange[frameCounter+1] == 1) // The end frame of an animation that is only played once is defined by setting the next frame change interval to 1
+    {
+    //After playing the animation, make the robot go back to the default one
+      setNormalBlink();
     }
     m.writeSprite(0, 0, frameIndex[expFrame]);
     m.writeSprite(8, 0, frameIndex[expFrame+1]);
@@ -252,7 +257,7 @@ if(digitalRead(buttonC)==HIGH)
 
 if(digitalRead(buttonD)==HIGH)
   {
-  textEnable = true;
+  setLaugh();
   }
 
 
@@ -309,7 +314,7 @@ void printStringWithShift(char* s, int shift_speed){
 void setNormalBlink(){  
   // Set frame intervals
   expFrameChange[0] = 0;
-  expFrameChange[1] = 2000;
+  expFrameChange[1] = 1000;
   expFrameChange[2] = 200;
   expFrameChange[3] = 3000;
   expFrameChange[4] = 200;
@@ -323,6 +328,32 @@ void setNormalBlink(){
   frameIndex[5] = nrmlREye;
   frameIndex[6] = blnkEyes;
   frameIndex[7] = blnkEyes;
+}
+
+// HappyBlink
+void setLaugh(){  
+  // Set frame intervals
+  expFrameChange[0] = 0;
+  expFrameChange[1] = 300;
+  expFrameChange[2] = 800;
+  expFrameChange[3] = 200;
+  expFrameChange[4] = 800;
+  expFrameChange[5] = 300;
+  expFrameChange[6] = 1;
+  // Set sprites
+  frameIndex[0] = blnkEyes;
+  frameIndex[1] = blnkEyes;
+  frameIndex[2] = hppyEyes;
+  frameIndex[3] = hppyEyes;
+  frameIndex[4] = blnkEyes;
+  frameIndex[5] = blnkEyes;
+  frameIndex[6] = hppyEyes;
+  frameIndex[7] = hppyEyes;
+  frameIndex[8] = blnkEyes;
+  frameIndex[9] = blnkEyes;
+  // Initialize the animation
+  frameCounter = 0;
+  expFrame = 0;
 }
 
 // ****** UTF8-Decoder: convert UTF8-string to extended ASCII *******
