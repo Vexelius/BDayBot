@@ -232,6 +232,7 @@ void loop(){
   }
   if(enableLW == false) leftWheel.write(92);
 
+
   // Right Wheel control
   if(enableRW==true)
   {
@@ -240,6 +241,8 @@ void loop(){
   }
   if(enableRW == false) rightWheel.write(93);
 
+
+// Input check
 if(digitalRead(buttonA)==HIGH)
   {
   enableLW = !enableLW;
@@ -256,7 +259,13 @@ if(digitalRead(buttonC)==HIGH)
   dirRW = !dirRW;
   }
 
+if(digitalRead(buttonD)==HIGH)
+  {
+  textEnable = true;
+  }
 
+
+  // Scrolling text
   if(textEnable == true)
   {
   byte c;
