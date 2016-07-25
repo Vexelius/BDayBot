@@ -15,11 +15,8 @@ boolean dirRW = true;    // Direction for Right Wheel
 // True = Forward | False = Reverse 
 
 boolean textEnable = false;
-boolean wheelEnable = false;
-int buttonState;
-int lastButtonState = LOW;
-long lastDebounceTime = 0;
-long debounceDelay = 50;
+boolean enableLW = false;
+boolean enableRW = false;
 
 // Variables to control the robot's animated expressions
 unsigned long previousMillis = 0; //Store the last time the Led Matrix is updated
@@ -226,61 +223,39 @@ void loop(){
     }
   }
   
-int reading = digitalRead(buttonA);
-if(reading != lastButtonState) lastDebounceTime = millis();
-  if ((millis() - lastDebounceTime) > debounceDelay) {
-    // whatever the reading is at, it's been there for longer
-    // than the debounce delay, so take it as the actual current state:
 
-    // if the button state has changed:
-    if (reading != buttonState) {
-      buttonState = reading;
-
-      // only toggle the LED if the new button state is HIGH
-      if (buttonState == HIGH) {
-        wheelEnable = !wheelEnable;
-      }
-    }
-  }
-
-  lastButtonState = reading;
-  //Turn Left Wheel On/Off
-  if(wheelEnable==true)
+  // Left Wheel control
+  if(enableLW==true)
   {
-  if(dirLW == true)
-    {
-    leftWheel.write(180);
-    }
-  if(dirLW == false)
-    {
-    leftWheel.write(0);
-    }
+  if(dirLW == true) leftWheel.write(180);
+  if(dirLW == false) leftWheel.write(0);
   }
-    if(wheelEnable == false) leftWheel.write(92);
+  if(enableLW == false) leftWheel.write(92);
+
+  // Right Wheel control
+  if(enableRW==true)
+  {
+  if(dirRW == true) rightWheel.write(0);
+  if(dirRW == false) rightWheel.write(180);
+  }
+  if(enableRW == false) rightWheel.write(93);
+
+if(digitalRead(buttonA)==HIGH)
+  {
+  enableLW = !enableLW;
+  }
+
 if(digitalRead(buttonB)==HIGH)
   {
-  leftWheel.write(93);
-  //One of the DGS04NF has its Stop point at 93, the other at 92
+  enableRW = !enableRW;
   }
-
 
 if(digitalRead(buttonC)==HIGH)
   {
-  rightWheel.write(0);
-  if(dirLW == true)
-    {
-    rightWheel.write(180);
-    }
-  else
-    {
-    rightWheel.write(0);
-    }
   dirLW = !dirLW;
+  dirRW = !dirRW;
   }
-if(digitalRead(buttonD)==HIGH)
-  {
-  rightWheel.write(93);
-  }
+
 
   if(textEnable == true)
   {
