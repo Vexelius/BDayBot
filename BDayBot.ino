@@ -17,12 +17,13 @@ boolean dirRW = true;    // Direction for Right Wheel
 boolean textEnable = false;
 boolean enableLW = false;
 boolean enableRW = false;
+boolean startFrame = true;
 
 // Variables to control the robot's animated expressions
 unsigned long previousMillis = 0; //Store the last time the Led Matrix is updated
 int frameCounter = 0; // Keeps track of the current frame and the maximum number of frames in each animation
 int expFrame = 0; // This value sets the sprite for each eye during a frame
-int expFrameChange[10] = {1000, 500, 800, 300, 900, 400, 1000, 0}; // The duration of each frame (in milliseconds)
+int expFrameChange[10] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0}; // The duration of each frame (in milliseconds)
 byte* frameIndex[15]; // This array sets the sequence of sprites that make each animation
 
 // Sprites for the robot's "eyes" 
@@ -183,43 +184,33 @@ void setup(){
   m.setIntensity(1); // LED Intensity 0-15
   utf8ascii(string1); // Convert the text string to ASCII values
 
-  // Blink: The robot's default animation
-  frameIndex[0] = nrmlLEye;
-  frameIndex[1] = nrmlREye;
-  frameIndex[2] = blnkEyes;
-  frameIndex[3] = blnkEyes;
-  frameIndex[4] = hppyEyes;
-  frameIndex[5] = hppyEyes;
-  frameIndex[6] = dzzyLEye;
-  frameIndex[7] = dzzyREye;
-  frameIndex[8] = clsdEyes;
-  frameIndex[9] = clsdEyes;
-  frameIndex[10] = srprLEye;
-  frameIndex[11] = srprREye;
-  frameIndex[12] = shnyLEye;
-  frameIndex[13] = shnyREye;
+  // Set the robot's default animation: NormalBlink
+  setNormalBlink();
+
 }
 
 void loop(){
   // Start tracking the elapsed time
   unsigned long currentMillis = millis();
 
-  // Draw the animation's frames to the led matrix
+  // Draw the animation's frames to the led matrix  
   if(currentMillis - previousMillis >= expFrameChange[frameCounter])
   {
+    if(expFrameChange[frameCounter+1] == 0) // The end of the animation is defined by setting the next frame change interval to 0
+    {
+    //If you have reached the last frame, go back to the first one
+      frameCounter = 0;
+      expFrame = 0;
+    }
     m.writeSprite(0, 0, frameIndex[expFrame]);
     m.writeSprite(8, 0, frameIndex[expFrame+1]);
   
     previousMillis = currentMillis;  // Remember the time
+    // Move to the next frame
     if(expFrameChange[frameCounter+1] > 0) 
     {
       frameCounter++;
       expFrame += 2;
-    }
-    else 
-    {
-      frameCounter = 0;
-      expFrame = 0;
     }
   }
   
@@ -312,6 +303,26 @@ void printStringWithShift(char* s, int shift_speed){
     printCharWithShift(*s, shift_speed);
     s++;
   }
+}
+
+// Default animation: The robot has a plain expression, blinks from time to time
+void setNormalBlink(){  
+  // Set frame intervals
+  expFrameChange[0] = 0;
+  expFrameChange[1] = 2000;
+  expFrameChange[2] = 200;
+  expFrameChange[3] = 3000;
+  expFrameChange[4] = 200;
+  expFrameChange[5] = 0;
+  // Set sprites
+  frameIndex[0] = nrmlLEye;
+  frameIndex[1] = nrmlREye;
+  frameIndex[2] = blnkEyes;
+  frameIndex[3] = blnkEyes;
+  frameIndex[4] = nrmlLEye;
+  frameIndex[5] = nrmlREye;
+  frameIndex[6] = blnkEyes;
+  frameIndex[7] = blnkEyes;
 }
 
 // ****** UTF8-Decoder: convert UTF8-string to extended ASCII *******
