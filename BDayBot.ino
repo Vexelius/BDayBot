@@ -15,7 +15,11 @@ boolean dirRW = true;    // Direction for Right Wheel
 // True = Forward | False = Reverse 
 
 boolean textEnable = false;
-boolean spriteTst = true;
+boolean wheelEnable = false;
+int buttonState;
+int lastButtonState = LOW;
+long lastDebounceTime = 0;
+long debounceDelay = 50;
 
 // Variables to control the robot's animated expressions
 unsigned long previousMillis = 0; //Store the last time the Led Matrix is updated
@@ -222,20 +226,37 @@ void loop(){
     }
   }
   
-  
-  if(digitalRead(buttonA)==HIGH)
+int reading = digitalRead(buttonA);
+if(reading != lastButtonState) lastDebounceTime = millis();
+  if ((millis() - lastDebounceTime) > debounceDelay) {
+    // whatever the reading is at, it's been there for longer
+    // than the debounce delay, so take it as the actual current state:
+
+    // if the button state has changed:
+    if (reading != buttonState) {
+      buttonState = reading;
+
+      // only toggle the LED if the new button state is HIGH
+      if (buttonState == HIGH) {
+        wheelEnable = !wheelEnable;
+      }
+    }
+  }
+
+  lastButtonState = reading;
+  //Turn Left Wheel On/Off
+  if(wheelEnable==true)
   {
-  leftWheel.write(0);
   if(dirLW == true)
     {
     leftWheel.write(180);
     }
-  else
+  if(dirLW == false)
     {
     leftWheel.write(0);
     }
-  dirLW = !dirLW;
   }
+    if(wheelEnable == false) leftWheel.write(92);
 if(digitalRead(buttonB)==HIGH)
   {
   leftWheel.write(93);
