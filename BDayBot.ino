@@ -43,6 +43,7 @@ byte dzzyLEye[] = {8, 8, B00111100, B01100010, B11001001, B11011101, B11010101, 
 byte dzzyREye[] = {8, 8, B00000000, B00111000, B01100100, B11010101, B11011101, B11001001, B01100010, B00111100};
 byte shnyLEye[] = {8, 8, B00111100, B01110110, B11100011, B11110111, B11011111, B01111110, B00111100, B00000000};
 byte shnyREye[] = {8, 8, B00000000, B00111100, B01111110, B11011111, B11110111, B11100011, B01110110, B00111100};
+byte clsdLids[] = {8, 8, B00000000, B00110000, B01110000, B01000000, B01000000, B01110000, B00110000, B00000000};
 byte upprLEye[] = {8, 8, B00000000, B00000000, B01111100, B11110010, B11111110, B01111100, B00000000, B00000000}; 
 
 // Character table. Used to display text
@@ -257,7 +258,7 @@ if(digitalRead(buttonC)==HIGH)
 
 if(digitalRead(buttonD)==HIGH)
   {
-  setLaugh();
+  setRightBlink();
   }
 
 
@@ -330,7 +331,7 @@ void setNormalBlink(){
   frameIndex[7] = blnkEyes;
 }
 
-// HappyBlink
+// Expression: Laugh
 void setLaugh(){  
   // Set frame intervals
   expFrameChange[0] = 0;
@@ -351,6 +352,148 @@ void setLaugh(){
   frameIndex[7] = hppyEyes;
   frameIndex[8] = blnkEyes;
   frameIndex[9] = blnkEyes;
+  // Initialize the animation
+  frameCounter = 0;
+  expFrame = 0;
+}
+
+// Expression: Surprise
+void setSurprise(){  
+  // Set frame intervals
+  expFrameChange[0] = 0;
+  expFrameChange[1] = 100;
+  expFrameChange[2] = 800;
+  expFrameChange[3] = 200;
+  expFrameChange[4] = 800;
+  expFrameChange[5] = 200;
+  expFrameChange[6] = 1;
+  // Set sprites
+  frameIndex[0] = clsdEyes;
+  frameIndex[1] = clsdEyes;
+  frameIndex[2] = srprLEye;
+  frameIndex[3] = srprREye;
+  frameIndex[4] = clsdEyes;
+  frameIndex[5] = clsdEyes;
+  frameIndex[6] = srprLEye;
+  frameIndex[7] = srprREye;
+  frameIndex[8] = clsdEyes;
+  frameIndex[9] = clsdEyes;
+  // Initialize the animation
+  frameCounter = 0;
+  expFrame = 0;
+}
+
+// Expression: In Love
+void setHeartEyes(){  
+  // Set frame intervals
+  expFrameChange[0] = 0;
+  expFrameChange[1] = 400;
+  expFrameChange[2] = 800;
+  expFrameChange[3] = 400;
+  expFrameChange[4] = 800;
+  expFrameChange[5] = 200;
+  expFrameChange[6] = 1;
+  // Set sprites
+  frameIndex[0] = lhrtLEye;
+  frameIndex[1] = lhrtREye;
+  frameIndex[2] = bhrtLEye;
+  frameIndex[3] = bhrtREye;
+  frameIndex[4] = lhrtLEye;
+  frameIndex[5] = lhrtREye;
+  frameIndex[6] = bhrtLEye;
+  frameIndex[7] = bhrtREye;
+  frameIndex[8] = blnkEyes;
+  frameIndex[9] = blnkEyes;
+  // Initialize the animation
+  frameCounter = 0;
+  expFrame = 0;
+}
+
+// Expression: Dizzy
+void setDizzy(){  
+  // Set frame intervals
+  expFrameChange[0] = 0;
+  expFrameChange[1] = 100;
+  expFrameChange[2] = 800;
+  expFrameChange[3] = 400;
+  expFrameChange[4] = 800;
+  expFrameChange[5] = 400;
+  expFrameChange[6] = 1;
+  // Set sprites
+  frameIndex[0] = clsdEyes;
+  frameIndex[1] = clsdEyes;
+  frameIndex[2] = dzzyLEye;
+  frameIndex[3] = dzzyREye;
+  frameIndex[4] = clsdEyes;
+  frameIndex[5] = clsdEyes;
+  frameIndex[6] = dzzyLEye;
+  frameIndex[7] = dzzyREye;
+  frameIndex[8] = clsdEyes;
+  frameIndex[9] = clsdEyes;
+  // Initialize the animation
+  frameCounter = 0;
+  expFrame = 0;
+}
+
+// Expression: Shiny Eyes
+void setShinyEyes(){  
+  // Set frame intervals
+  expFrameChange[0] = 0;
+  expFrameChange[1] = 100;
+  expFrameChange[2] = 1000;
+  expFrameChange[3] = 400;
+  expFrameChange[4] = 1000;
+  expFrameChange[5] = 300;
+  expFrameChange[6] = 1;
+  // Set sprites
+  frameIndex[0] = clsdLids;
+  frameIndex[1] = clsdLids;
+  frameIndex[2] = shnyLEye;
+  frameIndex[3] = shnyREye;
+  frameIndex[4] = clsdLids;
+  frameIndex[5] = clsdLids;
+  frameIndex[6] = shnyLEye;
+  frameIndex[7] = shnyREye;
+  frameIndex[8] = clsdLids;
+  frameIndex[9] = clsdLids;
+  // Initialize the animation
+  frameCounter = 0;
+  expFrame = 0;
+}
+
+// Expression: Blink with left eye
+void setLeftBlink(){  
+  // Set frame intervals
+  expFrameChange[0] = 0;
+  expFrameChange[1] = 200;
+  expFrameChange[2] = 200;
+  expFrameChange[3] = 1;
+
+  // Set sprites
+  frameIndex[0] = clsdLids;
+  frameIndex[1] = nrmlREye;
+  frameIndex[2] = nrmlLEye;
+  frameIndex[3] = nrmlREye;
+
+  // Initialize the animation
+  frameCounter = 0;
+  expFrame = 0;
+}
+
+// Expression: Blink with right eye
+void setRightBlink(){  
+  // Set frame intervals
+  expFrameChange[0] = 0;
+  expFrameChange[1] = 200;
+  expFrameChange[2] = 200;
+  expFrameChange[3] = 1;
+
+  // Set sprites
+  frameIndex[0] = nrmlLEye;
+  frameIndex[1] = clsdLids;
+  frameIndex[2] = nrmlLEye;
+  frameIndex[3] = nrmlREye;
+
   // Initialize the animation
   frameCounter = 0;
   expFrame = 0;
