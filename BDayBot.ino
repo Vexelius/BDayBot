@@ -44,7 +44,11 @@ byte dzzyREye[] = {8, 8, B00000000, B00111000, B01100100, B11010101, B11011101, 
 byte shnyLEye[] = {8, 8, B00111100, B01110110, B11100011, B11110111, B11011111, B01111110, B00111100, B00000000};
 byte shnyREye[] = {8, 8, B00000000, B00111100, B01111110, B11011111, B11110111, B11100011, B01110110, B00111100};
 byte clsdLids[] = {8, 8, B00000000, B00110000, B01110000, B01000000, B01000000, B01110000, B00110000, B00000000};
-byte upprLEye[] = {8, 8, B00000000, B00000000, B01111100, B11110010, B11111110, B01111100, B00000000, B00000000}; 
+byte slpyEyes[] = {8, 8, B00000000, B01111100, B11111100, B11000000, B11000000, B11111100, B01111100, B00000000};
+byte cnfgLEye[] = {8, 8, B00000000, B01111110, B01111110, B01000010, B00000000, B01000010, B01111110, B00000000};
+byte cnfgREye[] = {8, 8, B00000000, B01111110, B01000010, B00000000, B01000010, B01111110, B01111110, B00000000};
+byte lookLeft[] = {8, 8, B01111100, B11001010, B11111110, B11111110, B01111100, B00000000, B00000000, B00000000};
+byte lookRigh[] = {8, 8, B00000000, B00000000, B00000000, B01111100, B11111110, B11111110, B11001010, B01111100};
 
 // Character table. Used to display text
 PROGMEM const unsigned char CH[] = {
@@ -258,7 +262,7 @@ if(digitalRead(buttonC)==HIGH)
 
 if(digitalRead(buttonD)==HIGH)
   {
-  setRightBlink();
+  setLeftLook();
   }
 
 
@@ -493,6 +497,97 @@ void setRightBlink(){
   frameIndex[1] = clsdLids;
   frameIndex[2] = nrmlLEye;
   frameIndex[3] = nrmlREye;
+
+  // Initialize the animation
+  frameCounter = 0;
+  expFrame = 0;
+}
+
+// Status: Tired - This animation will play when the robot's battery is around 30% - 10%
+void setTiredBlink(){  
+  // Set frame intervals
+  expFrameChange[0] = 0;
+  expFrameChange[1] = 1000;
+  expFrameChange[2] = 200;
+  expFrameChange[3] = 3000;
+  expFrameChange[4] = 200;
+  expFrameChange[5] = 0;
+  
+  // Set sprites
+  frameIndex[0] = nrmlLEye;
+  frameIndex[1] = nrmlREye;
+  frameIndex[2] = clsdLids;
+  frameIndex[3] = clsdLids;
+  frameIndex[4] = nrmlLEye;
+  frameIndex[5] = nrmlREye;
+  frameIndex[6] = clsdLids;
+  frameIndex[7] = clsdLids;
+  
+  // Initialize the animation
+  frameCounter = 0;
+  expFrame = 0;
+}
+
+// Status: Sleepy - This animation will play when the robot's battery is 9% or lower
+void setSleepyBlink(){  
+  // Set frame intervals
+  expFrameChange[0] = 0;
+  expFrameChange[1] = 4000;
+  expFrameChange[2] = 500;
+  expFrameChange[3] = 3000;
+  expFrameChange[4] = 500;
+  expFrameChange[5] = 0;
+  
+  // Set sprites
+  frameIndex[0] = clsdLids;
+  frameIndex[1] = clsdLids;
+  frameIndex[2] = slpyEyes;
+  frameIndex[3] = slpyEyes;
+  frameIndex[4] = clsdLids;
+  frameIndex[5] = clsdLids;
+  frameIndex[6] = slpyEyes;
+  frameIndex[7] = slpyEyes;
+  
+  // Initialize the animation
+  frameCounter = 0;
+  expFrame = 0;
+}
+
+// Status: Configuration Mode
+void setConfigBlink(){  
+  // Set frame intervals
+  expFrameChange[0] = 0;
+  expFrameChange[1] = 500;
+  expFrameChange[2] = 2200;
+  expFrameChange[3] = 400;
+  expFrameChange[4] = 2000;
+  expFrameChange[5] = 0;
+  
+  // Set sprites
+  frameIndex[0] = clsdEyes;
+  frameIndex[1] = clsdEyes;
+  frameIndex[2] = cnfgLEye;
+  frameIndex[3] = cnfgREye;
+  frameIndex[4] = clsdEyes;
+  frameIndex[5] = clsdEyes;
+  frameIndex[6] = cnfgLEye;
+  frameIndex[7] = cnfgREye;
+  
+  // Initialize the animation
+  frameCounter = 0;
+  expFrame = 0;
+}
+
+// Status: Look to the left
+void setLeftLook(){  
+  // Set frame intervals
+  expFrameChange[0] = 0;
+  expFrameChange[1] = 500;
+  expFrameChange[3] = 1;
+
+  // Set sprites
+  frameIndex[0] = lookLeft;
+  frameIndex[1] = lookLeft;
 
   // Initialize the animation
   frameCounter = 0;
