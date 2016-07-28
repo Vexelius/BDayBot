@@ -53,6 +53,9 @@ byte sdnsLEye[] = {8, 8, B00001100, B01111100, B11111100, B10011110, B11111110, 
 byte sdnsREye[] = {8, 8, B00000000, B00000110, B01111110, B11111110, B10011110, B11111100, B01111100, B00001100};
 byte angrLEye[] = {8, 8, B00000011, B01111111, B11111111, B11001110, B11111110, B01111100, B00001100, B00000000};
 byte angrREye[] = {8, 8, B00000000, B00001100, B01111100, B11111110, B11001110, B11111111, B01111111, B00000011};
+byte pstvEyes[] = {8, 8, B00000000, B00011000, B00011100, B00001100, B00001100, B00011100, B00011000, B00000000};
+byte ngtvEyeL[] = {8, 8, B00110000, B01110000, B01000000, B01000000, B01110000, B00110000, B00000000, B00000000};
+byte ngtvEyeR[] = {8, 8, B00000000, B00000000, B00110000, B01110000, B01000000, B01000000, B01110000, B00110000};
 
 // Character table. Used to display text
 PROGMEM const unsigned char CH[] = {
@@ -266,7 +269,7 @@ if(digitalRead(buttonC)==HIGH)
 
 if(digitalRead(buttonD)==HIGH)
   {
-  setAngryEyes();
+  setPositive();
   }
 
 
@@ -328,6 +331,7 @@ void setNormalBlink(){
   expFrameChange[3] = 3000;
   expFrameChange[4] = 200;
   expFrameChange[5] = 0;
+  
   // Set sprites
   frameIndex[0] = nrmlLEye;
   frameIndex[1] = nrmlREye;
@@ -349,6 +353,7 @@ void setLaugh(){
   expFrameChange[4] = 800;
   expFrameChange[5] = 300;
   expFrameChange[6] = 1;
+  
   // Set sprites
   frameIndex[0] = blnkEyes;
   frameIndex[1] = blnkEyes;
@@ -360,6 +365,7 @@ void setLaugh(){
   frameIndex[7] = hppyEyes;
   frameIndex[8] = blnkEyes;
   frameIndex[9] = blnkEyes;
+  
   // Initialize the animation
   frameCounter = 0;
   expFrame = 0;
@@ -375,6 +381,7 @@ void setSurprise(){
   expFrameChange[4] = 800;
   expFrameChange[5] = 200;
   expFrameChange[6] = 1;
+  
   // Set sprites
   frameIndex[0] = clsdEyes;
   frameIndex[1] = clsdEyes;
@@ -386,6 +393,7 @@ void setSurprise(){
   frameIndex[7] = srprREye;
   frameIndex[8] = clsdEyes;
   frameIndex[9] = clsdEyes;
+  
   // Initialize the animation
   frameCounter = 0;
   expFrame = 0;
@@ -401,6 +409,7 @@ void setHeartEyes(){
   expFrameChange[4] = 800;
   expFrameChange[5] = 200;
   expFrameChange[6] = 1;
+  
   // Set sprites
   frameIndex[0] = lhrtLEye;
   frameIndex[1] = lhrtREye;
@@ -412,6 +421,7 @@ void setHeartEyes(){
   frameIndex[7] = bhrtREye;
   frameIndex[8] = blnkEyes;
   frameIndex[9] = blnkEyes;
+  
   // Initialize the animation
   frameCounter = 0;
   expFrame = 0;
@@ -427,6 +437,7 @@ void setDizzy(){
   expFrameChange[4] = 800;
   expFrameChange[5] = 400;
   expFrameChange[6] = 1;
+  
   // Set sprites
   frameIndex[0] = clsdEyes;
   frameIndex[1] = clsdEyes;
@@ -438,6 +449,7 @@ void setDizzy(){
   frameIndex[7] = dzzyREye;
   frameIndex[8] = clsdEyes;
   frameIndex[9] = clsdEyes;
+  
   // Initialize the animation
   frameCounter = 0;
   expFrame = 0;
@@ -453,6 +465,7 @@ void setShinyEyes(){
   expFrameChange[4] = 1000;
   expFrameChange[5] = 300;
   expFrameChange[6] = 1;
+  
   // Set sprites
   frameIndex[0] = clsdLids;
   frameIndex[1] = clsdLids;
@@ -464,6 +477,7 @@ void setShinyEyes(){
   frameIndex[7] = shnyREye;
   frameIndex[8] = clsdLids;
   frameIndex[9] = clsdLids;
+  
   // Initialize the animation
   frameCounter = 0;
   expFrame = 0;
@@ -517,6 +531,7 @@ void setSadEyes(){
   expFrameChange[4] = 1000;
   expFrameChange[5] = 300;
   expFrameChange[6] = 1;
+  
   // Set sprites
   frameIndex[0] = clsdLids;
   frameIndex[1] = clsdLids;
@@ -528,6 +543,7 @@ void setSadEyes(){
   frameIndex[7] = sdnsREye;
   frameIndex[8] = clsdLids;
   frameIndex[9] = clsdLids;
+  
   // Initialize the animation
   frameCounter = 0;
   expFrame = 0;
@@ -543,6 +559,7 @@ void setAngryEyes(){
   expFrameChange[4] = 1000;
   expFrameChange[5] = 200;
   expFrameChange[6] = 1;
+  
   // Set sprites
   frameIndex[0] = clsdEyes;
   frameIndex[1] = clsdEyes;
@@ -554,6 +571,63 @@ void setAngryEyes(){
   frameIndex[7] = angrREye;
   frameIndex[8] = clsdEyes;
   frameIndex[9] = clsdEyes;
+  
+  // Initialize the animation
+  frameCounter = 0;
+  expFrame = 0;
+}
+
+// Expression: Possitive answer
+void setPositive(){  
+  // Set frame intervals
+  expFrameChange[0] = 0;
+  expFrameChange[1] = 300;
+  expFrameChange[2] = 500;
+  expFrameChange[3] = 300;
+  expFrameChange[4] = 500;
+  expFrameChange[5] = 200;
+  expFrameChange[6] = 1;
+  
+  // Set sprites
+  frameIndex[0] = blnkEyes;
+  frameIndex[1] = blnkEyes;
+  frameIndex[2] = pstvEyes;
+  frameIndex[3] = pstvEyes;
+  frameIndex[4] = blnkEyes;
+  frameIndex[5] = blnkEyes;
+  frameIndex[6] = pstvEyes;
+  frameIndex[7] = pstvEyes;
+  frameIndex[8] = blnkEyes;
+  frameIndex[9] = blnkEyes;
+  
+  // Initialize the animation
+  frameCounter = 0;
+  expFrame = 0;
+}
+
+// Expression: Negative answer
+void setNegative(){  
+  // Set frame intervals
+  expFrameChange[0] = 0;
+  expFrameChange[1] = 300;
+  expFrameChange[2] = 300;
+  expFrameChange[3] = 300;
+  expFrameChange[4] = 300;
+  expFrameChange[5] = 300;
+  expFrameChange[6] = 1;
+  
+  // Set sprites
+  frameIndex[0] = ngtvEyeL;
+  frameIndex[1] = ngtvEyeL;
+  frameIndex[2] = ngtvEyeR;
+  frameIndex[3] = ngtvEyeR;
+  frameIndex[4] = ngtvEyeL;
+  frameIndex[5] = ngtvEyeL;
+  frameIndex[6] = ngtvEyeR;
+  frameIndex[7] = ngtvEyeR;
+  frameIndex[8] = ngtvEyeL;
+  frameIndex[9] = ngtvEyeL;
+  
   // Initialize the animation
   frameCounter = 0;
   expFrame = 0;
