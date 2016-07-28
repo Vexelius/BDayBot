@@ -49,6 +49,10 @@ byte cnfgLEye[] = {8, 8, B00000000, B01111110, B01111110, B01000010, B00000000, 
 byte cnfgREye[] = {8, 8, B00000000, B01111110, B01000010, B00000000, B01000010, B01111110, B01111110, B00000000};
 byte lookLeft[] = {8, 8, B01111100, B11001010, B11111110, B11111110, B01111100, B00000000, B00000000, B00000000};
 byte lookRigh[] = {8, 8, B00000000, B00000000, B00000000, B01111100, B11111110, B11111110, B11001010, B01111100};
+byte sdnsLEye[] = {8, 8, B00001100, B01111100, B11111100, B10011110, B11111110, B01111110, B00000110, B00000000};
+byte sdnsREye[] = {8, 8, B00000000, B00000110, B01111110, B11111110, B10011110, B11111100, B01111100, B00001100};
+byte angrLEye[] = {8, 8, B00000011, B01111111, B11111111, B11001110, B11111110, B01111100, B00001100, B00000000};
+byte angrREye[] = {8, 8, B00000000, B00001100, B01111100, B11111110, B11001110, B11111111, B01111111, B00000011};
 
 // Character table. Used to display text
 PROGMEM const unsigned char CH[] = {
@@ -262,7 +266,7 @@ if(digitalRead(buttonC)==HIGH)
 
 if(digitalRead(buttonD)==HIGH)
   {
-  setLeftLook();
+  setAngryEyes();
   }
 
 
@@ -503,6 +507,58 @@ void setRightBlink(){
   expFrame = 0;
 }
 
+// Expression: Sadness
+void setSadEyes(){  
+  // Set frame intervals
+  expFrameChange[0] = 0;
+  expFrameChange[1] = 100;
+  expFrameChange[2] = 1000;
+  expFrameChange[3] = 400;
+  expFrameChange[4] = 1000;
+  expFrameChange[5] = 300;
+  expFrameChange[6] = 1;
+  // Set sprites
+  frameIndex[0] = clsdLids;
+  frameIndex[1] = clsdLids;
+  frameIndex[2] = sdnsLEye;
+  frameIndex[3] = sdnsREye;
+  frameIndex[4] = clsdLids;
+  frameIndex[5] = clsdLids;
+  frameIndex[6] = sdnsLEye;
+  frameIndex[7] = sdnsREye;
+  frameIndex[8] = clsdLids;
+  frameIndex[9] = clsdLids;
+  // Initialize the animation
+  frameCounter = 0;
+  expFrame = 0;
+}
+
+// Expression: Anger
+void setAngryEyes(){  
+  // Set frame intervals
+  expFrameChange[0] = 0;
+  expFrameChange[1] = 100;
+  expFrameChange[2] = 1000;
+  expFrameChange[3] = 200;
+  expFrameChange[4] = 1000;
+  expFrameChange[5] = 200;
+  expFrameChange[6] = 1;
+  // Set sprites
+  frameIndex[0] = clsdEyes;
+  frameIndex[1] = clsdEyes;
+  frameIndex[2] = angrLEye;
+  frameIndex[3] = angrREye;
+  frameIndex[4] = clsdEyes;
+  frameIndex[5] = clsdEyes;
+  frameIndex[6] = angrLEye;
+  frameIndex[7] = angrREye;
+  frameIndex[8] = clsdEyes;
+  frameIndex[9] = clsdEyes;
+  // Initialize the animation
+  frameCounter = 0;
+  expFrame = 0;
+}
+
 // Status: Tired - This animation will play when the robot's battery is around 30% - 10%
 void setTiredBlink(){  
   // Set frame intervals
@@ -588,6 +644,22 @@ void setLeftLook(){
   // Set sprites
   frameIndex[0] = lookLeft;
   frameIndex[1] = lookLeft;
+
+  // Initialize the animation
+  frameCounter = 0;
+  expFrame = 0;
+}
+
+// Status: Look to the right
+void setRightLook(){  
+  // Set frame intervals
+  expFrameChange[0] = 0;
+  expFrameChange[1] = 500;
+  expFrameChange[3] = 1;
+
+  // Set sprites
+  frameIndex[0] = lookRigh;
+  frameIndex[1] = lookRigh;
 
   // Initialize the animation
   frameCounter = 0;
