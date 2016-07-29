@@ -5,16 +5,15 @@
 
 // notes in the melody:
 int melody[] = {
-  NOTE_C4, NOTE_G3, NOTE_G3, NOTE_A3, NOTE_G3, 0, NOTE_B3, NOTE_C4
+  C4, G3, G3, LA3, G3, 0, B3, C4
 };
 
 // note durations: 4 = quarter note, 8 = eighth note, etc.:
 int noteDurations[] = {
-  4, 8, 8, 4, 4, 4, 4, 4
+  Q, E, E, Q, Q, Q, Q, Q
 };
 int noteCounter = 0;
 int pauseBetweenNotes = 500;
-int noteDuration = 1000/noteDurations[0];
 unsigned long melodyPreviousMillis = 0;
 
 const int buttonA = 2;
@@ -30,6 +29,7 @@ boolean dirRW = true;    // Direction for Right Wheel
 // True = Forward | False = Reverse 
 
 boolean textEnable = false;
+boolean soundEnable = false;
 boolean enableLW = false;
 boolean enableRW = false;
 
@@ -245,14 +245,18 @@ void loop(){
     }
   }
 
-  // Play sounds
-  if((melodyMillis - melodyPreviousMillis >= pauseBetweenNotes)&&(noteCounter<8))
+  // Play sounds through a buzzer
+  if((melodyMillis - melodyPreviousMillis >= pauseBetweenNotes)&&(noteCounter<8)&&(soundEnable==true))
   {
-    noteDuration = 1000/noteDurations[noteCounter];
-    tone(7, melody[noteCounter], noteDuration);
-    pauseBetweenNotes = noteDuration*1.30;
+    tone(7, melody[noteCounter], noteDurations[noteCounter]);
+    pauseBetweenNotes = noteDurations[noteCounter]*1.30;
     noteCounter++;
     melodyPreviousMillis = melodyMillis;
+    if(noteCounter==8) 
+    {
+      soundEnable = false;
+      noteCounter=0;
+    }
   }
   
   // Left Wheel control
@@ -286,8 +290,7 @@ if(digitalRead(buttonB)==HIGH)
 
 if(digitalRead(buttonC)==HIGH)
   {
-  dirLW = !dirLW;
-  dirRW = !dirRW;
+  soundEnable=true;
   }
 
 if(digitalRead(buttonD)==HIGH)
