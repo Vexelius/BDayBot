@@ -5,12 +5,14 @@
 
 // notes in the melody:
 int melody[] = {
-  C4, G3, G3, LA3, G3, 0, B3, C4
+  C4, C4, D4, C4, F4, E4, C4, C4, D4, C4, G4, F4,
+  C4, C4, C5, LA4, F4, E4, D4, B4, B4, LA4, F4, G4, F4
 };
 
 // note durations: 4 = quarter note, 8 = eighth note, etc.:
 int noteDurations[] = {
-  Q, E, E, Q, Q, Q, Q, Q
+  Q, Q, Q, Q, Q, H, Q, Q, Q, Q, Q, H,
+  Q, Q, Q, Q, Q, Q, Q, Q, Q, Q, Q, Q, H
 };
 int noteCounter = 0;
 int pauseBetweenNotes = 500;
@@ -246,13 +248,13 @@ void loop(){
   }
 
   // Play sounds through a buzzer
-  if((melodyMillis - melodyPreviousMillis >= pauseBetweenNotes)&&(noteCounter<8)&&(soundEnable==true))
+  if((melodyMillis - melodyPreviousMillis >= pauseBetweenNotes)&&(noteCounter<25)&&(soundEnable==true))
   {
     tone(7, melody[noteCounter], noteDurations[noteCounter]);
     pauseBetweenNotes = noteDurations[noteCounter]*1.30;
     noteCounter++;
     melodyPreviousMillis = melodyMillis;
-    if(noteCounter==8) 
+    if(noteCounter==25) 
     {
       soundEnable = false;
       noteCounter=0;
