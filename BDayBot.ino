@@ -1,6 +1,21 @@
 #include <MaxMatrix.h>
 #include <avr/pgmspace.h>
-#include <Servo.h> 
+#include <Servo.h>
+#include "pitches.h"
+
+// notes in the melody:
+int melody[] = {
+  NOTE_C4, NOTE_G3, NOTE_G3, NOTE_A3, NOTE_G3, 0, NOTE_B3, NOTE_C4
+};
+
+// note durations: 4 = quarter note, 8 = eighth note, etc.:
+int noteDurations[] = {
+  4, 8, 8, 4, 4, 4, 4, 4
+};
+int noteCounter = 0;
+int pauseBetweenNotes = 500;
+int noteDuration = 1000/noteDurations[0];
+unsigned long melodyPreviousMillis = 0;
 
 const int buttonA = 2;
 const int buttonB = 4;
@@ -17,7 +32,6 @@ boolean dirRW = true;    // Direction for Right Wheel
 boolean textEnable = false;
 boolean enableLW = false;
 boolean enableRW = false;
-boolean startFrame = true;
 
 // Variables to control the robot's animated expressions
 unsigned long previousMillis = 0; //Store the last time the Led Matrix is updated
@@ -198,12 +212,12 @@ void setup(){
 
   // Set the robot's default animation: NormalBlink
   setNormalBlink();
-
 }
 
 void loop(){
   // Start tracking the elapsed time
   unsigned long currentMillis = millis();
+  unsigned long melodyMillis = millis();
 
   // Draw the animation's frames to the led matrix  
   if(currentMillis - previousMillis >= expFrameChange[frameCounter])
@@ -230,8 +244,17 @@ void loop(){
       expFrame += 2;
     }
   }
-  
 
+  // Play sounds
+  if((melodyMillis - melodyPreviousMillis >= pauseBetweenNotes)&&(noteCounter<8))
+  {
+    noteDuration = 1000/noteDurations[noteCounter];
+    tone(7, melody[noteCounter], noteDuration);
+    pauseBetweenNotes = noteDuration*1.30;
+    noteCounter++;
+    melodyPreviousMillis = melodyMillis;
+  }
+  
   // Left Wheel control
   if(enableLW==true)
   {
