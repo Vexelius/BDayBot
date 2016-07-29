@@ -269,7 +269,7 @@ if(digitalRead(buttonC)==HIGH)
 
 if(digitalRead(buttonD)==HIGH)
   {
-  setPositive();
+  setLaugh();
   }
 
 
