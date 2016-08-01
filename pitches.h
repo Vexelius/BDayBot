@@ -1,5 +1,5 @@
 // NB: ALL NOTES DEFINED WITH STANDARD ENGLISH NAMES, EXCEPT FROM "A" 
-//THAT IS CALLED WITH THE ITALIAN NAME "LA" BECAUSE A0,A1...ARE THE ANALOG PINS ON ARDUINO.
+// THAT IS CALLED WITH THE ITALIAN NAME "LA" BECAUSE A0,A1...ARE THE ANALOG PINS ON ARDUINO.
 // (Ab IS CALLED Ab AND NOT LAb)
 #define  C0      16.35
 #define Db0 17.32
@@ -101,8 +101,9 @@
 #define Db8 4434.92
 #define D8  4698.64
 #define Eb8 4978.03
+
 // DURATION OF THE NOTES 
-#define BPM 200      //you can change this value changing all the others
+#define BPM 270 // You can change this value, changing all the others
 #define H 2*Q //half 2/4
 #define Q 60000/BPM //quarter 1/4 
 #define E Q/2   //eighth 1/8

@@ -3,20 +3,20 @@
 #include <Servo.h>
 #include "pitches.h"
 
-// notes in the melody:
+// Happy Bithday: Notes in the tune
 int melody[] = {
   C4, C4, D4, C4, F4, E4, C4, C4, D4, C4, G4, F4,
   C4, C4, C5, LA4, F4, E4, D4, B4, B4, LA4, F4, G4, F4
 };
 
-// note durations: 4 = quarter note, 8 = eighth note, etc.:
+// Note durations: H = Half note, Q = Quarter note... W = Whole note
 int noteDurations[] = {
   Q, Q, Q, Q, Q, H, Q, Q, Q, Q, Q, H,
   Q, Q, Q, Q, Q, Q, Q, Q, Q, Q, Q, Q, H
 };
-int noteCounter = 0;
-int pauseBetweenNotes = 500;
-unsigned long melodyPreviousMillis = 0;
+int noteCounter = 0;  // Keeps track of the current note being played
+int pauseBetweenNotes = 500; // Creates a pause to differentiate each note
+unsigned long melodyPreviousMillis = 0; // Timer that controls when to play the notes
 
 const int buttonA = 2;
 const int buttonB = 4;
@@ -249,6 +249,7 @@ void loop(){
 
   // Play sounds through a buzzer
   if((melodyMillis - melodyPreviousMillis >= pauseBetweenNotes)&&(noteCounter<25)&&(soundEnable==true))
+  // The robot will only play one tune, 
   {
     tone(7, melody[noteCounter], noteDurations[noteCounter]);
     pauseBetweenNotes = noteDurations[noteCounter]*1.30;
@@ -297,7 +298,7 @@ if(digitalRead(buttonC)==HIGH)
 
 if(digitalRead(buttonD)==HIGH)
   {
-  setLaugh();
+  setWakingUp();
   }
 
 
@@ -763,6 +764,34 @@ void setRightLook(){
   frameIndex[0] = lookRigh;
   frameIndex[1] = lookRigh;
 
+  // Initialize the animation
+  frameCounter = 0;
+  expFrame = 0;
+}
+
+// Status: Waking up - This animation will play when the robot is turned on
+void setWakingUp(){  
+  // Set frame intervals
+  expFrameChange[0] = 0;
+  expFrameChange[1] = 1000;
+  expFrameChange[2] = 400;
+  expFrameChange[3] = 800;
+  expFrameChange[4] = 200;
+  expFrameChange[5] = 1000;
+  expFrameChange[6] = 1;
+  
+  // Set sprites
+  frameIndex[0] = slpyEyes;
+  frameIndex[1] = slpyEyes;
+  frameIndex[2] = clsdLids;
+  frameIndex[3] = clsdLids;
+  frameIndex[4] = nrmlLEye;
+  frameIndex[5] = nrmlREye;
+  frameIndex[6] = clsdLids;
+  frameIndex[7] = clsdLids;
+  frameIndex[8] = nrmlLEye;
+  frameIndex[9] = nrmlREye;
+  
   // Initialize the animation
   frameCounter = 0;
   expFrame = 0;
