@@ -18,10 +18,8 @@ int noteCounter = 0;  // Keeps track of the current note being played
 int pauseBetweenNotes = 500; // Creates a pause to differentiate each note
 unsigned long melodyPreviousMillis = 0; // Timer that controls when to play the notes
 
-const int buttonA = 2;
-const int buttonB = 4;
-const int buttonC = 5;
-const int buttonD = 6;
+const int buttonA = 14;
+const int buttonB = 15;
 
 Servo leftWheel;
 Servo rightWheel;
@@ -187,9 +185,9 @@ PROGMEM const unsigned char CH[] = {
 };
 
 // Setting up the LED Matrixes using the MAXMATRIX Library
-int data = 8;    // DIN pin of MAX7219 module
-int load = 9;    // CS pin of MAX7219 module
-int clock = 10;  // CLK pin of MAX7219 module
+int data = 4;    // DIN pin of MAX7219 module
+int load = 5;    // CS pin of MAX7219 module
+int clock = 6;  // CLK pin of MAX7219 module
 int maxInUse = 2;  //how many MAX7219 are connected
 MaxMatrix m(data, load, clock, maxInUse); // define Library
 
@@ -202,11 +200,9 @@ char string1[] = " !Feliz cumpleaños, Ángel!   ";
 
 void setup(){
   leftWheel.attach(3);    //  Left Wheel on pin 3
-  rightWheel.attach(11);  // Right Wheel on pin 11 
+  rightWheel.attach(10);  // Right Wheel on pin 11 
   pinMode(buttonA, INPUT);
   pinMode(buttonB, INPUT);
-  pinMode(buttonC, INPUT);
-  pinMode(buttonD, INPUT);
   
   m.init(); // module MAX7219
   m.setIntensity(1); // LED Intensity 0-15
@@ -251,7 +247,7 @@ void loop(){
   if((melodyMillis - melodyPreviousMillis >= pauseBetweenNotes)&&(noteCounter<25)&&(soundEnable==true))
   // The robot will only play one tune, 
   {
-    tone(7, melody[noteCounter], noteDurations[noteCounter]);
+    tone(9, melody[noteCounter], noteDurations[noteCounter]);
     pauseBetweenNotes = noteDurations[noteCounter]*1.30;
     noteCounter++;
     melodyPreviousMillis = melodyMillis;
@@ -284,21 +280,13 @@ void loop(){
 if(digitalRead(buttonA)==HIGH)
   {
   enableLW = !enableLW;
+  enableRW = !enableRW;
   }
 
 if(digitalRead(buttonB)==HIGH)
   {
-  enableRW = !enableRW;
-  }
-
-if(digitalRead(buttonC)==HIGH)
-  {
+  setLaugh();
   soundEnable=true;
-  }
-
-if(digitalRead(buttonD)==HIGH)
-  {
-  setWakingUp();
   }
 
 
