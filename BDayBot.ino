@@ -2,6 +2,21 @@
 #include <avr/pgmspace.h>
 #include <Servo.h>
 #include "pitches.h"
+#include <SPI.h>
+#include "RF24.h"
+#include <printf.h>
+
+// Set up the NRF24L01
+RF24 radio(7,8);
+byte addresses[][6] = {"1Node","2Node"};  // Create the pipes
+
+struct dataStruct {
+  unsigned long timeCounter;  // Save response times
+  char keyPress;          // When a key is pressed, this variable stores its unique code
+  boolean keypadLock;     // When this flag is active, no input will be received fron the keypad
+  boolean configMode;     // This flag determines wheter the robot is in Config Mode or not
+  boolean statusDizzy;    // Is the robot feeling Dizzy?
+} myData;                 // Data stream that will be sent to the robot
 
 // Happy Bithday: Notes in the tune
 int melody[] = {
@@ -203,6 +218,20 @@ void setup(){
   rightWheel.attach(10);  // Right Wheel on pin 11 
   pinMode(buttonA, INPUT);
   pinMode(buttonB, INPUT);
+
+  radio.begin();  //Initialize NRF24L01
+  radio.setDataRate(RF24_250KBPS);  //Data rate is slow, but ensures accuracy
+  radio.setPALevel(RF24_PA_HIGH);   //High PA Level, to give enough range
+  radio.setCRCLength(RF24_CRC_16);  //CRC at 16 bits
+  radio.setRetries(15,15);          //Max number of retries
+  radio.setPayloadSize(8);          //Payload size of 8bits
+
+  // Open a writing and reading pipe on each radio, with opposite addresses
+  radio.openWritingPipe(addresses[1]);
+  radio.openReadingPipe(1, addresses[0]);
+
+  // Start listening for data
+  radio.startListening();
   
   m.init(); // module MAX7219
   m.setIntensity(1); // LED Intensity 0-15
@@ -298,6 +327,27 @@ if(digitalRead(buttonB)==HIGH)
   m.shiftLeft(false, true);
   printStringWithShift(string1, 100);  // Send scrolling Text
   textEnable = false;
+  }
+
+  // Wireless communication
+  if ( radio.available())
+  {
+    while (radio.available())   // While there is data ready to be retrieved from the receive pipe
+    {
+      radio.read( &myData, sizeof(myData) );             // Get the data
+    }
+
+    radio.stopListening();                               // First, stop listening so we can transmit
+    radio.write( &myData, sizeof(myData) );              // Send the received data back.
+    radio.startListening();                              // Now, resume listening so we catch the next packets.
+
+    //(M)Button: Play the Happy Birthday melody
+    if(myData.keyPress == 'M')
+    {
+      setLaugh();
+      soundEnable=true;
+    }
+
   }
 }
 
