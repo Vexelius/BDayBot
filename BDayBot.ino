@@ -33,8 +33,12 @@ int noteCounter = 0;  // Keeps track of the current note being played
 int pauseBetweenNotes = 500; // Creates a pause to differentiate each note
 unsigned long melodyPreviousMillis = 0; // Timer that controls when to play the notes
 
-const int buttonA = 14;
-const int buttonB = 15;
+const int buttonA = 18;
+const int buttonB = 19;
+
+const int candleA = 14;
+const int candleB = 15;
+const int candleC = 16;
 
 Servo leftWheel;
 Servo rightWheel;
@@ -47,6 +51,9 @@ boolean textEnable = false;
 boolean soundEnable = false;
 boolean enableLW = false;
 boolean enableRW = false;
+boolean enableCandleA = false;
+boolean enableCandleB = false;
+boolean enableCandleC = false;
 
 // Variables to control the robot's animated expressions
 unsigned long previousMillis = 0; //Store the last time the Led Matrix is updated
@@ -210,7 +217,7 @@ byte buffer[10];
 
 // Scrolling Text
 // While the text is being displayed, the mechanical system stops
-char string1[] = " !Feliz cumpleaños, Ángel!   ";
+char string1[] = " !Feliz Dia del Abuelo, Padre Jose!   ";
 
 
 void setup(){
@@ -218,6 +225,9 @@ void setup(){
   rightWheel.attach(10);  // Right Wheel on pin 11 
   pinMode(buttonA, INPUT);
   pinMode(buttonB, INPUT);
+  pinMode(candleA, OUTPUT);
+  pinMode(candleB, OUTPUT);
+  pinMode(candleC, OUTPUT);
 
   radio.begin();  //Initialize NRF24L01
   radio.setDataRate(RF24_250KBPS);  //Data rate is slow, but ensures accuracy
@@ -304,18 +314,32 @@ void loop(){
   }
   if(enableRW == false) rightWheel.write(93);
 
+  // Candlelight control
+  if(enableCandleA==true)
+  digitalWrite(candleA, HIGH);
+  else
+  digitalWrite(candleA, LOW);
+
+  if(enableCandleB==true)
+  digitalWrite(candleB, HIGH);
+  else
+  digitalWrite(candleB, LOW);
+
+  if(enableCandleC==true)
+  digitalWrite(candleC, HIGH);
+  else
+  digitalWrite(candleC, LOW);
+
 
 // Input check
 if(digitalRead(buttonA)==HIGH)
   {
-  enableLW = !enableLW;
-  enableRW = !enableRW;
+  enableCandleC = !enableCandleC;
   }
 
 if(digitalRead(buttonB)==HIGH)
   {
-  setLaugh();
-  soundEnable=true;
+  textEnable=true;
   }
 
 
