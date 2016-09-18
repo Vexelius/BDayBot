@@ -62,6 +62,10 @@ int expFrame = 0; // This value sets the sprite for each eye during a frame
 int expFrameChange[10] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0}; // The duration of each frame (in milliseconds)
 byte* frameIndex[15]; // This array sets the sequence of sprites that make each animation
 
+unsigned long prevBattCheck = 0;
+float battVoltage[5];
+int battChecker = 0;
+
 // Sprites for the robot's "eyes" 
 // Happy blink (800): blinkHEye, happyEye 
 byte hppyEyes[] = {8, 8, B00000000, B11111100, B11111110, B00000110, B00000110, B11111110, B11111100, B00000000};
@@ -217,10 +221,11 @@ byte buffer[10];
 
 // Scrolling Text
 // While the text is being displayed, the mechanical system stops
-char string1[] = " !Feliz Dia del Abuelo, Padre Jose!   ";
+char string1[] = " Congratulations!   ";
 
 
 void setup(){
+  Serial.begin(9600);
   leftWheel.attach(3);    //  Left Wheel on pin 3
   rightWheel.attach(10);  // Right Wheel on pin 11 
   pinMode(buttonA, INPUT);
@@ -255,6 +260,7 @@ void loop(){
   // Start tracking the elapsed time
   unsigned long currentMillis = millis();
   unsigned long melodyMillis = millis();
+  unsigned long battCheckMillis = millis();
 
   // Draw the animation's frames to the led matrix  
   if(currentMillis - previousMillis >= expFrameChange[frameCounter])
@@ -296,6 +302,16 @@ void loop(){
       noteCounter=0;
     }
   }
+
+  if(battCheckMillis - prevBattCheck >= 2000)
+  {
+    checkBattery();
+    prevBattCheck = battCheckMillis;
+    if(battChecker == 4)
+    battChecker = 0;
+    else
+    battChecker++;
+  }
   
   // Left Wheel control
   if(enableLW==true)
@@ -334,7 +350,7 @@ void loop(){
 // Input check
 if(digitalRead(buttonA)==HIGH)
   {
-  enableCandleC = !enableCandleC;
+  checkBattery();
   }
 
 if(digitalRead(buttonB)==HIGH)
@@ -857,6 +873,28 @@ void setWakingUp(){
   // Initialize the animation
   frameCounter = 0;
   expFrame = 0;
+}
+
+//Measure the voltage in the LiPo Battery
+void checkBattery()
+{
+  int sensorValue = analogRead(A3); //Read the voltage at pin A3
+  battVoltage[battChecker] = sensorValue * (5.00 / 1023.00); //convert the value to a true voltage.
+  if(battChecker == 4)
+  {
+    battVoltage[5]=(battVoltage[0]+battVoltage[1]+battVoltage[2]+battVoltage[3]+battVoltage[4])/5;
+    Serial.print("Average Voltage: ");
+    Serial.println(battVoltage[5]);
+  }
+  /*
+   *Show debugging information
+  Serial.print("Value in A3: ");
+  Serial.println(sensorValue);
+  Serial.print("Voltage Sample #");
+  Serial.print(battChecker);
+  Serial.print(" : ");
+  Serial.println(battVoltage[battChecker]);
+  */
 }
 
 // ****** UTF8-Decoder: convert UTF8-string to extended ASCII *******
