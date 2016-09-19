@@ -56,15 +56,23 @@ boolean enableCandleB = false;
 boolean enableCandleC = false;
 
 // Variables to control the robot's animated expressions
-unsigned long previousMillis = 0; //Store the last time the Led Matrix is updated
+unsigned long previousMillis = 0; // Store the last time the Led Matrix is updated
 int frameCounter = 0; // Keeps track of the current frame and the maximum number of frames in each animation
 int expFrame = 0; // This value sets the sprite for each eye during a frame
 int expFrameChange[10] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0}; // The duration of each frame (in milliseconds)
 byte* frameIndex[15]; // This array sets the sequence of sprites that make each animation
 
-unsigned long prevBattCheck = 0;
-float battVoltage[5];
-int battChecker = 0;
+// Variables to keep track of the robot's battery level
+unsigned long prevBattCheck = 0; //When was the last time that you checked the battery voltage?
+float battVoltage[5] = {3.75, 3.75, 3.75, 3.75, 3.75}; //Store 4 samples to average
+//The fifth value in the array is made up by averaging the samples
+//I have decided to give it some starting values (around 50% of the battery's capacity)
+//in order to avoid getting an unusually low (or high!) value at the start of the program
+int battChecker = 0;  // This counter arranges the values in battVoltage
+int battLevel = 100;  // The battery level, as a percentage
+int checkBattInterval = 100; // Sets up the time between samples
+bool firstBattCheck = false; // Battery charge is an important variable for the robot's operation.
+//This flag ensures that the robot will perform the checkBattery routine soon after it's turned on
 
 // Sprites for the robot's "eyes" 
 // Happy blink (800): blinkHEye, happyEye 
@@ -303,14 +311,29 @@ void loop(){
     }
   }
 
-  if(battCheckMillis - prevBattCheck >= 2000)
+  // Check battery voltage
+  if(battCheckMillis - prevBattCheck >= checkBattInterval)
   {
     checkBattery();
-    prevBattCheck = battCheckMillis;
-    if(battChecker == 4)
-    battChecker = 0;
+    prevBattCheck = battCheckMillis;  //Remember the last time the sensor value was checked
+    if(battChecker == 4)  //When four samples have been collected
+    {
+      battChecker = 0;  //Restart from sample #0
+      //The following test, which is only performed once per session ensures 
+      //that the robot will estimate the battery's charge soon after it's turned on
+      if(firstBattCheck == false)
+      {
+      checkBattInterval = 60000;
+      firstBattCheck = true;
+      //Afterwards, set up a longer interval for this routine.
+      //This way, the robot won't waste processing power and energy
+      //constantly checking out his own battery levels
+      }
+    }
     else
-    battChecker++;
+    {
+    battChecker++; //If the four samples haven't been collected, increment the counter
+    }
   }
   
   // Left Wheel control
@@ -879,15 +902,21 @@ void setWakingUp(){
 void checkBattery()
 {
   int sensorValue = analogRead(A3); //Read the voltage at pin A3
-  battVoltage[battChecker] = sensorValue * (5.00 / 1023.00); //convert the value to a true voltage.
-  if(battChecker == 4)
+  battVoltage[battChecker] = sensorValue * (5.00 / 1023.00); //Convert the value to a voltage.
+  if(battChecker == 4)  //After taking 4 samples, average the value
   {
     battVoltage[5]=(battVoltage[0]+battVoltage[1]+battVoltage[2]+battVoltage[3]+battVoltage[4])/5;
-    Serial.print("Average Voltage: ");
+    Serial.print(">> Average Voltage: ");
     Serial.println(battVoltage[5]);
+    int battVoltRound = battVoltage[5]*10; //Truncate the value to 1 decimal
+    Serial.print(">> Rounded Voltage : ");
+    Serial.println(battVoltRound);
+    battLevel = ((battVoltRound-35)*100)/7; //Calculate the battery level (as a percentage)
+    Serial.print(">> Battery Level: ");
+    Serial.println(battLevel);
   }
   /*
-   *Show debugging information
+  //Show debugging information
   Serial.print("Value in A3: ");
   Serial.println(sensorValue);
   Serial.print("Voltage Sample #");
