@@ -70,7 +70,7 @@ float battVoltage[5] = {3.75, 3.75, 3.75, 3.75, 3.75}; //Store 4 samples to aver
 //in order to avoid getting an unusually low (or high!) value at the start of the program
 int battChecker = 0;  // This counter arranges the values in battVoltage
 int battLevel = 100;  // The battery level, as a percentage
-int checkBattInterval = 100; // Sets up the time between samples
+unsigned int checkBattInterval = 100; // Sets up the time between samples
 bool firstBattCheck = false; // Battery charge is an important variable for the robot's operation.
 //This flag ensures that the robot will perform the checkBattery routine soon after it's turned on
 
@@ -323,7 +323,7 @@ void loop(){
       //that the robot will estimate the battery's charge soon after it's turned on
       if(firstBattCheck == false)
       {
-      checkBattInterval = 60000; //Why can't it go higher than 30000?
+      checkBattInterval = 60000;
       firstBattCheck = true;
       //Afterwards, set up a longer interval for this routine.
       //This way, the robot won't waste processing power and energy
