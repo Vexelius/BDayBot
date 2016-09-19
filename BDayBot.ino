@@ -323,7 +323,7 @@ void loop(){
       //that the robot will estimate the battery's charge soon after it's turned on
       if(firstBattCheck == false)
       {
-      checkBattInterval = 60000;
+      checkBattInterval = 60000; //Why can't it go higher than 30000?
       firstBattCheck = true;
       //Afterwards, set up a longer interval for this routine.
       //This way, the robot won't waste processing power and energy
@@ -915,7 +915,7 @@ void checkBattery()
     Serial.print(">> Battery Level: ");
     Serial.println(battLevel);
   }
-  /*
+  
   //Show debugging information
   Serial.print("Value in A3: ");
   Serial.println(sensorValue);
@@ -923,7 +923,7 @@ void checkBattery()
   Serial.print(battChecker);
   Serial.print(" : ");
   Serial.println(battVoltage[battChecker]);
-  */
+  
 }
 
 // ****** UTF8-Decoder: convert UTF8-string to extended ASCII *******
