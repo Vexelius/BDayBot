@@ -2,6 +2,21 @@
 #include <avr/pgmspace.h>
 #include <Servo.h>
 #include "pitches.h"
+#include <SPI.h>
+#include "RF24.h"
+#include <printf.h>
+
+// Set up the NRF24L01
+RF24 radio(7,8);
+byte addresses[][6] = {"1Node","2Node"};  // Create the pipes
+
+struct dataStruct {
+  unsigned long timeCounter;  // Save response times
+  char keyPress;          // When a key is pressed, this variable stores its unique code
+  boolean keypadLock;     // When this flag is active, no input will be received fron the keypad
+  boolean configMode;     // This flag determines wheter the robot is in Config Mode or not
+  boolean statusDizzy;    // Is the robot feeling Dizzy?
+} myData;                 // Data stream that will be sent to the robot
 
 // Happy Bithday: Notes in the tune
 int melody[] = {
@@ -18,10 +33,12 @@ int noteCounter = 0;  // Keeps track of the current note being played
 int pauseBetweenNotes = 500; // Creates a pause to differentiate each note
 unsigned long melodyPreviousMillis = 0; // Timer that controls when to play the notes
 
-const int buttonA = 2;
-const int buttonB = 4;
-const int buttonC = 5;
-const int buttonD = 6;
+const int buttonA = 18;
+const int buttonB = 19;
+
+const int candleA = 14;
+const int candleB = 15;
+const int candleC = 16;
 
 Servo leftWheel;
 Servo rightWheel;
@@ -34,13 +51,28 @@ boolean textEnable = false;
 boolean soundEnable = false;
 boolean enableLW = false;
 boolean enableRW = false;
+boolean enableCandleA = false;
+boolean enableCandleB = false;
+boolean enableCandleC = false;
 
 // Variables to control the robot's animated expressions
-unsigned long previousMillis = 0; //Store the last time the Led Matrix is updated
+unsigned long previousMillis = 0; // Store the last time the Led Matrix is updated
 int frameCounter = 0; // Keeps track of the current frame and the maximum number of frames in each animation
 int expFrame = 0; // This value sets the sprite for each eye during a frame
 int expFrameChange[10] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0}; // The duration of each frame (in milliseconds)
 byte* frameIndex[15]; // This array sets the sequence of sprites that make each animation
+
+// Variables to keep track of the robot's battery level
+unsigned long prevBattCheck = 0; //When was the last time that you checked the battery voltage?
+float battVoltage[5] = {3.75, 3.75, 3.75, 3.75, 3.75}; //Store 4 samples to average
+//The fifth value in the array is made up by averaging the samples
+//I have decided to give it some starting values (around 50% of the battery's capacity)
+//in order to avoid getting an unusually low (or high!) value at the start of the program
+int battChecker = 0;  // This counter arranges the values in battVoltage
+int battLevel = 100;  // The battery level, as a percentage
+int checkBattInterval = 100; // Sets up the time between samples
+bool firstBattCheck = false; // Battery charge is an important variable for the robot's operation.
+//This flag ensures that the robot will perform the checkBattery routine soon after it's turned on
 
 // Sprites for the robot's "eyes" 
 // Happy blink (800): blinkHEye, happyEye 
@@ -187,9 +219,9 @@ PROGMEM const unsigned char CH[] = {
 };
 
 // Setting up the LED Matrixes using the MAXMATRIX Library
-int data = 8;    // DIN pin of MAX7219 module
-int load = 9;    // CS pin of MAX7219 module
-int clock = 10;  // CLK pin of MAX7219 module
+int data = 4;    // DIN pin of MAX7219 module
+int load = 5;    // CS pin of MAX7219 module
+int clock = 6;  // CLK pin of MAX7219 module
 int maxInUse = 2;  //how many MAX7219 are connected
 MaxMatrix m(data, load, clock, maxInUse); // define Library
 
@@ -197,16 +229,32 @@ byte buffer[10];
 
 // Scrolling Text
 // While the text is being displayed, the mechanical system stops
-char string1[] = " !Feliz cumpleaños, Ángel!   ";
+char string1[] = " Congratulations!   ";
 
 
 void setup(){
+  Serial.begin(9600);
   leftWheel.attach(3);    //  Left Wheel on pin 3
-  rightWheel.attach(11);  // Right Wheel on pin 11 
+  rightWheel.attach(10);  // Right Wheel on pin 11 
   pinMode(buttonA, INPUT);
   pinMode(buttonB, INPUT);
-  pinMode(buttonC, INPUT);
-  pinMode(buttonD, INPUT);
+  pinMode(candleA, OUTPUT);
+  pinMode(candleB, OUTPUT);
+  pinMode(candleC, OUTPUT);
+
+  radio.begin();  //Initialize NRF24L01
+  radio.setDataRate(RF24_250KBPS);  //Data rate is slow, but ensures accuracy
+  radio.setPALevel(RF24_PA_HIGH);   //High PA Level, to give enough range
+  radio.setCRCLength(RF24_CRC_16);  //CRC at 16 bits
+  radio.setRetries(15,15);          //Max number of retries
+  radio.setPayloadSize(8);          //Payload size of 8bits
+
+  // Open a writing and reading pipe on each radio, with opposite addresses
+  radio.openWritingPipe(addresses[1]);
+  radio.openReadingPipe(1, addresses[0]);
+
+  // Start listening for data
+  radio.startListening();
   
   m.init(); // module MAX7219
   m.setIntensity(1); // LED Intensity 0-15
@@ -220,6 +268,7 @@ void loop(){
   // Start tracking the elapsed time
   unsigned long currentMillis = millis();
   unsigned long melodyMillis = millis();
+  unsigned long battCheckMillis = millis();
 
   // Draw the animation's frames to the led matrix  
   if(currentMillis - previousMillis >= expFrameChange[frameCounter])
@@ -251,7 +300,7 @@ void loop(){
   if((melodyMillis - melodyPreviousMillis >= pauseBetweenNotes)&&(noteCounter<25)&&(soundEnable==true))
   // The robot will only play one tune, 
   {
-    tone(7, melody[noteCounter], noteDurations[noteCounter]);
+    tone(9, melody[noteCounter], noteDurations[noteCounter]);
     pauseBetweenNotes = noteDurations[noteCounter]*1.30;
     noteCounter++;
     melodyPreviousMillis = melodyMillis;
@@ -259,6 +308,31 @@ void loop(){
     {
       soundEnable = false;
       noteCounter=0;
+    }
+  }
+
+  // Check battery voltage
+  if(battCheckMillis - prevBattCheck >= checkBattInterval)
+  {
+    checkBattery();
+    prevBattCheck = battCheckMillis;  //Remember the last time the sensor value was checked
+    if(battChecker == 4)  //When four samples have been collected
+    {
+      battChecker = 0;  //Restart from sample #0
+      //The following test, which is only performed once per session ensures 
+      //that the robot will estimate the battery's charge soon after it's turned on
+      if(firstBattCheck == false)
+      {
+      checkBattInterval = 60000; //Why can't it go higher than 30000?
+      firstBattCheck = true;
+      //Afterwards, set up a longer interval for this routine.
+      //This way, the robot won't waste processing power and energy
+      //constantly checking out his own battery levels
+      }
+    }
+    else
+    {
+    battChecker++; //If the four samples haven't been collected, increment the counter
     }
   }
   
@@ -279,26 +353,32 @@ void loop(){
   }
   if(enableRW == false) rightWheel.write(93);
 
+  // Candlelight control
+  if(enableCandleA==true)
+  digitalWrite(candleA, HIGH);
+  else
+  digitalWrite(candleA, LOW);
+
+  if(enableCandleB==true)
+  digitalWrite(candleB, HIGH);
+  else
+  digitalWrite(candleB, LOW);
+
+  if(enableCandleC==true)
+  digitalWrite(candleC, HIGH);
+  else
+  digitalWrite(candleC, LOW);
+
 
 // Input check
 if(digitalRead(buttonA)==HIGH)
   {
-  enableLW = !enableLW;
+  checkBattery();
   }
 
 if(digitalRead(buttonB)==HIGH)
   {
-  enableRW = !enableRW;
-  }
-
-if(digitalRead(buttonC)==HIGH)
-  {
-  soundEnable=true;
-  }
-
-if(digitalRead(buttonD)==HIGH)
-  {
-  setWakingUp();
+  textEnable=true;
   }
 
 
@@ -310,6 +390,27 @@ if(digitalRead(buttonD)==HIGH)
   m.shiftLeft(false, true);
   printStringWithShift(string1, 100);  // Send scrolling Text
   textEnable = false;
+  }
+
+  // Wireless communication
+  if ( radio.available())
+  {
+    while (radio.available())   // While there is data ready to be retrieved from the receive pipe
+    {
+      radio.read( &myData, sizeof(myData) );             // Get the data
+    }
+
+    radio.stopListening();                               // First, stop listening so we can transmit
+    radio.write( &myData, sizeof(myData) );              // Send the received data back.
+    radio.startListening();                              // Now, resume listening so we catch the next packets.
+
+    //(M)Button: Play the Happy Birthday melody
+    if(myData.keyPress == 'M')
+    {
+      setLaugh();
+      soundEnable=true;
+    }
+
   }
 }
 
@@ -795,6 +896,34 @@ void setWakingUp(){
   // Initialize the animation
   frameCounter = 0;
   expFrame = 0;
+}
+
+//Measure the voltage in the LiPo Battery
+void checkBattery()
+{
+  int sensorValue = analogRead(A3); //Read the voltage at pin A3
+  battVoltage[battChecker] = sensorValue * (5.00 / 1023.00); //Convert the value to a voltage.
+  if(battChecker == 4)  //After taking 4 samples, average the value
+  {
+    battVoltage[5]=(battVoltage[0]+battVoltage[1]+battVoltage[2]+battVoltage[3]+battVoltage[4])/5;
+    Serial.print(">> Average Voltage: ");
+    Serial.println(battVoltage[5]);
+    int battVoltRound = battVoltage[5]*10; //Truncate the value to 1 decimal
+    Serial.print(">> Rounded Voltage : ");
+    Serial.println(battVoltRound);
+    battLevel = ((battVoltRound-35)*100)/7; //Calculate the battery level (as a percentage)
+    Serial.print(">> Battery Level: ");
+    Serial.println(battLevel);
+  }
+  
+  //Show debugging information
+  Serial.print("Value in A3: ");
+  Serial.println(sensorValue);
+  Serial.print("Voltage Sample #");
+  Serial.print(battChecker);
+  Serial.print(" : ");
+  Serial.println(battVoltage[battChecker]);
+  
 }
 
 // ****** UTF8-Decoder: convert UTF8-string to extended ASCII *******
