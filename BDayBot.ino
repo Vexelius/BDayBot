@@ -908,10 +908,10 @@ void checkBattery()
     battVoltage[5]=(battVoltage[0]+battVoltage[1]+battVoltage[2]+battVoltage[3]+battVoltage[4])/5;
     Serial.print(">> Average Voltage: ");
     Serial.println(battVoltage[5]);
-    int battVoltRound = battVoltage[5]*10; //Truncate the value to 1 decimal
+    int battVoltRound = (battVoltage[5]+0.05)*100; //Round and truncate the value to 2 decimals
     Serial.print(">> Rounded Voltage : ");
     Serial.println(battVoltRound);
-    battLevel = ((battVoltRound-35)*100)/7; //Calculate the battery level (as a percentage)
+    battLevel = ((battVoltRound-350)*10)/7; //Calculate the battery level (as a percentage)
     Serial.print(">> Battery Level: ");
     Serial.println(battLevel);
   }
