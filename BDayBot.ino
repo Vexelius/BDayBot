@@ -233,9 +233,9 @@ char string1[] = " Congratulations!   ";
 
 
 void setup(){
-  Serial.begin(9600);
-  leftWheel.attach(3);    //  Left Wheel on pin 3
-  rightWheel.attach(10);  // Right Wheel on pin 11 
+  //Serial.begin(9600);
+  //leftWheel.attach(3);    //  Left Wheel on pin 3
+  //rightWheel.attach(10);  // Right Wheel on pin 10 
   pinMode(buttonA, INPUT);
   pinMode(buttonB, INPUT);
   pinMode(candleA, OUTPUT);
@@ -312,6 +312,7 @@ void loop(){
   }
 
   // Check battery voltage
+  /*
   if(battCheckMillis - prevBattCheck >= checkBattInterval)
   {
     checkBattery();
@@ -334,24 +335,26 @@ void loop(){
     {
     battChecker++; //If the four samples haven't been collected, increment the counter
     }
-  }
+  }*/
   
   // Left Wheel control
   if(enableLW==true)
   {
-  if(dirLW == true) leftWheel.write(180);
+  leftWheel.attach(3);
+  if(dirLW == true) leftWheel.write(100);
   if(dirLW == false) leftWheel.write(0);
   }
-  if(enableLW == false) leftWheel.write(92);
+  if(enableLW == false) leftWheel.detach();
 
 
   // Right Wheel control
   if(enableRW==true)
   {
+  rightWheel.attach(10);
   if(dirRW == true) rightWheel.write(0);
-  if(dirRW == false) rightWheel.write(180);
+  if(dirRW == false) rightWheel.write(100);
   }
-  if(enableRW == false) rightWheel.write(93);
+  if(enableRW == false) rightWheel.detach();
 
   // Candlelight control
   if(enableCandleA==true)
@@ -373,12 +376,12 @@ void loop(){
 // Input check
 if(digitalRead(buttonA)==HIGH)
   {
-  checkBattery();
+  enableLW = !enableLW;
   }
 
 if(digitalRead(buttonB)==HIGH)
   {
-  textEnable=true;
+  enableRW = !enableRW;
   }
 
 
