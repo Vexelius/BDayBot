@@ -229,13 +229,25 @@ byte buffer[10];
 
 // Scrolling Text
 // While the text is being displayed, the mechanical system stops
-char string1[] = " Congratulations!   ";
+char string1[] = " Hello World!!!   ";
 
 
 void setup(){
   //Serial.begin(9600);
-  //leftWheel.attach(3);    //  Left Wheel on pin 3
-  //rightWheel.attach(10);  // Right Wheel on pin 10 
+  m.init(); // module MAX7219
+  m.setIntensity(1); // LED Intensity 0-15
+  utf8ascii(string1); // Convert the text string to ASCII values
+  m.writeSprite(0, 0, clsdLids);
+  m.writeSprite(8, 0, clsdLids);
+  
+  leftWheel.attach(3);    //  Left Wheel on pin 3
+  rightWheel.attach(10);  // Right Wheel on pin 10
+  delay(100);
+  //leftWheel.write(92);
+  leftWheel.detach();
+  //rightWheel.write(93);
+  rightWheel.detach(); 
+  
   pinMode(buttonA, INPUT);
   pinMode(buttonB, INPUT);
   pinMode(candleA, OUTPUT);
@@ -255,10 +267,6 @@ void setup(){
 
   // Start listening for data
   radio.startListening();
-  
-  m.init(); // module MAX7219
-  m.setIntensity(1); // LED Intensity 0-15
-  utf8ascii(string1); // Convert the text string to ASCII values
 
   // Set the robot's default animation: NormalBlink
   setNormalBlink();
@@ -342,9 +350,13 @@ void loop(){
   {
   leftWheel.attach(3);
   if(dirLW == true) leftWheel.write(100);
-  if(dirLW == false) leftWheel.write(0);
+  if(dirLW == false) leftWheel.write(92);
   }
-  if(enableLW == false) leftWheel.detach();
+  if(enableLW == false)
+  {
+  leftWheel.write(92);
+  leftWheel.detach();
+  }
 
 
   // Right Wheel control
@@ -352,9 +364,13 @@ void loop(){
   {
   rightWheel.attach(10);
   if(dirRW == true) rightWheel.write(0);
-  if(dirRW == false) rightWheel.write(100);
+  if(dirRW == false) rightWheel.write(93);
   }
-  if(enableRW == false) rightWheel.detach();
+  if(enableRW == false)
+  {
+  rightWheel.write(93);
+  rightWheel.detach();
+  }
 
   // Candlelight control
   if(enableCandleA==true)
@@ -371,18 +387,6 @@ void loop(){
   digitalWrite(candleC, HIGH);
   else
   digitalWrite(candleC, LOW);
-
-
-// Input check
-if(digitalRead(buttonA)==HIGH)
-  {
-  enableLW = !enableLW;
-  }
-
-if(digitalRead(buttonB)==HIGH)
-  {
-  enableRW = !enableRW;
-  }
 
 
   // Scrolling text
@@ -412,6 +416,36 @@ if(digitalRead(buttonB)==HIGH)
     {
       setLaugh();
       soundEnable=true;
+    }
+
+    //(A)Button: Show message
+    if(myData.keyPress == 'A')
+    {
+      textEnable=true;
+    }
+
+    //(L)Button: Move left
+    if(myData.keyPress == 'L')
+    {
+      enableLW = !enableLW;
+    }
+
+    //(R)Button: Move right
+    if(myData.keyPress == 'R')
+    {
+      enableRW = !enableRW;
+    }
+
+    //(U)Button: Check left wheel
+    if(myData.keyPress == 'U')
+    {
+      dirLW = !dirLW;
+    }
+
+    //(U)Button: Check right wheel
+    if(myData.keyPress == 'D')
+    {
+      dirRW = !dirRW;
     }
 
   }
