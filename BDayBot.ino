@@ -13,6 +13,7 @@ byte addresses[][6] = {"1Node","2Node"};  // Create the pipes
 struct dataStruct {
   unsigned long timeCounter;  // Save response times
   char keyPress;          // When a key is pressed, this variable stores its unique code
+  int keyState;
   boolean keypadLock;     // When this flag is active, no input will be received fron the keypad
   boolean configMode;     // This flag determines wheter the robot is in Config Mode or not
   boolean statusDizzy;    // Is the robot feeling Dizzy?
@@ -73,6 +74,9 @@ int battLevel = 100;  // The battery level, as a percentage
 unsigned int checkBattInterval = 100; // Sets up the time between samples
 bool firstBattCheck = false; // Battery charge is an important variable for the robot's operation.
 //This flag ensures that the robot will perform the checkBattery routine soon after it's turned on
+
+unsigned long prevMotorMillis = 0;
+int motorInterval = 500;
 
 // Sprites for the robot's "eyes" 
 // Happy blink (800): blinkHEye, happyEye 
@@ -237,19 +241,19 @@ void setup(){
   m.init(); // module MAX7219
   m.setIntensity(1); // LED Intensity 0-15
   utf8ascii(string1); // Convert the text string to ASCII values
-  m.writeSprite(0, 0, clsdLids);
-  m.writeSprite(8, 0, clsdLids);
+  m.writeSprite(0, 0, clsdLids); // At startup, the robot will be sleeping
+  m.writeSprite(8, 0, clsdLids); // This also masks the momentary "wiggle" of the servos
   
-  leftWheel.attach(3);    //  Left Wheel on pin 3
+  leftWheel.attach(3);    // Left Wheel on pin 3
   rightWheel.attach(10);  // Right Wheel on pin 10
+  // Due to an issue in the servos' control board, there's a "glitch" that makes them
+  // move randomly at startup, although there's no digital signal being applied.
+  // This issue was solved by adding the following lines.
+  // However, this makes the servos "wiggle" for an instant
   delay(100);
-  //leftWheel.write(92);
   leftWheel.detach();
-  //rightWheel.write(93);
   rightWheel.detach(); 
   
-  pinMode(buttonA, INPUT);
-  pinMode(buttonB, INPUT);
   pinMode(candleA, OUTPUT);
   pinMode(candleB, OUTPUT);
   pinMode(candleC, OUTPUT);
@@ -277,6 +281,7 @@ void loop(){
   unsigned long currentMillis = millis();
   unsigned long melodyMillis = millis();
   unsigned long battCheckMillis = millis();
+  
 
   // Draw the animation's frames to the led matrix  
   if(currentMillis - previousMillis >= expFrameChange[frameCounter])
@@ -349,8 +354,8 @@ void loop(){
   if(enableLW==true)
   {
   leftWheel.attach(3);
-  if(dirLW == true) leftWheel.write(100);
-  if(dirLW == false) leftWheel.write(92);
+  if(dirLW == true) leftWheel.write(120);
+  if(dirLW == false) leftWheel.write(70);
   }
   if(enableLW == false)
   {
@@ -363,8 +368,8 @@ void loop(){
   if(enableRW==true)
   {
   rightWheel.attach(10);
-  if(dirRW == true) rightWheel.write(0);
-  if(dirRW == false) rightWheel.write(93);
+  if(dirRW == true) rightWheel.write(70);
+  if(dirRW == false) rightWheel.write(120);
   }
   if(enableRW == false)
   {
@@ -424,31 +429,47 @@ void loop(){
       textEnable=true;
     }
 
+    //(U)Button: Move forward
+    if(myData.keyPress == 'U')
+    {
+      dirRW = true;
+      dirLW = true;
+      enableRW = true;
+      enableLW = true;
+    }
+
+    //(D)Button: Move backwards
+    if(myData.keyPress == 'D')
+    {
+      dirRW = false;
+      dirLW = false;
+      enableRW = true;
+      enableLW = true;
+    }
+
     //(L)Button: Move left
     if(myData.keyPress == 'L')
     {
-      enableLW = !enableLW;
+      enableLW = true;
     }
 
     //(R)Button: Move right
     if(myData.keyPress == 'R')
     {
-      enableRW = !enableRW;
+      enableRW = true;
     }
 
-    //(U)Button: Check left wheel
-    if(myData.keyPress == 'U')
+    
+    if(((myData.keyPress == 'U')||(myData.keyPress == 'D')||
+    (myData.keyPress == 'L')||(myData.keyPress == 'R'))&&
+    (myData.keyState == 2))
     {
-      dirLW = !dirLW;
-    }
-
-    //(U)Button: Check right wheel
-    if(myData.keyPress == 'D')
-    {
-      dirRW = !dirRW;
+      enableRW = false;
+      enableLW = false;
     }
 
   }
+
 }
 
 // Put extracted character on Display
