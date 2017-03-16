@@ -75,9 +75,6 @@ unsigned int checkBattInterval = 100; // Sets up the time between samples
 bool firstBattCheck = false; // Battery charge is an important variable for the robot's operation.
 //This flag ensures that the robot will perform the checkBattery routine soon after it's turned on
 
-unsigned long prevMotorMillis = 0;
-int motorInterval = 500;
-
 // Sprites for the robot's "eyes" 
 // Happy blink (800): blinkHEye, happyEye 
 byte hppyEyes[] = {8, 8, B00000000, B11111100, B11111110, B00000110, B00000110, B11111110, B11111100, B00000000};
@@ -233,11 +230,11 @@ byte buffer[10];
 
 // Scrolling Text
 // While the text is being displayed, the mechanical system stops
-char string1[] = " Hello World!!!   ";
+char string1[] = " Congratulations!   ";
 
 
 void setup(){
-  //Serial.begin(9600);
+  Serial.begin(9600);
   m.init(); // module MAX7219
   m.setIntensity(1); // LED Intensity 0-15
   utf8ascii(string1); // Convert the text string to ASCII values
@@ -427,6 +424,12 @@ void loop(){
     if(myData.keyPress == 'A')
     {
       textEnable=true;
+    }
+
+    //(B)Button: Heart eyes!
+    if(myData.keyPress == 'B')
+    {
+    setHeartEyes();
     }
 
     //(U)Button: Move forward
