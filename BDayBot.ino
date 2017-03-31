@@ -1,3 +1,14 @@
+//  **=============================================**
+//  ||                 PASTELINO                   ||
+//  ++---------------------------------------------++
+//  ||        A robot for birthday parties!        ||
+//  ||                                             ||
+//  ||  Powered by:                                ||
+//  ||    -ICStation UNO R3                        ||
+//  ||    -nRFL2401 module                         ||
+//  ||                                             ||
+//  **=============================================**
+
 #include <MaxMatrix.h>
 #include <avr/pgmspace.h>
 #include <Servo.h>
@@ -259,7 +270,7 @@ void setup(){
   radio.setDataRate(RF24_250KBPS);  //Data rate is slow, but ensures accuracy
   radio.setPALevel(RF24_PA_HIGH);   //High PA Level, to give enough range
   radio.setCRCLength(RF24_CRC_16);  //CRC at 16 bits
-  radio.setRetries(15,15);          //Max number of retries
+  radio.setRetries(1,1);          //Max number of retries
   radio.setPayloadSize(8);          //Payload size of 8bits
 
   // Open a writing and reading pipe on each radio, with opposite addresses
@@ -414,22 +425,28 @@ void loop(){
     radio.startListening();                              // Now, resume listening so we catch the next packets.
 
     //(M)Button: Play the Happy Birthday melody
-    if(myData.keyPress == 'M')
+    if((myData.keyPress == 'M')&&(myData.keyState==2))
     {
       setLaugh();
       soundEnable=true;
     }
 
-    //(A)Button: Show message
-    if(myData.keyPress == 'A')
+    //(A)Button: Test expression
+    if((myData.keyPress == 'A')&&(myData.keyState==2))
     {
-      textEnable=true;
+      setSurprise();
     }
 
     //(B)Button: Heart eyes!
-    if(myData.keyPress == 'B')
+    if((myData.keyPress == 'B')&&(myData.keyState==2))
     {
     setHeartEyes();
+    }
+
+    //(C)Button: Test expression
+    if((myData.keyPress == 'C')&&(myData.keyState==2))
+    {
+    setShinyEyes();
     }
 
     //(U)Button: Move forward
@@ -964,19 +981,7 @@ void checkBattery()
 {
   int sensorValue = analogRead(A3); //Read the voltage at pin A3
   battVoltage[battChecker] = sensorValue * (5.00 / 1023.00); //Convert the value to a voltage.
-  if(battChecker == 4)  //After taking 4 samples, average the value
-  {
-    battVoltage[5]=(battVoltage[0]+battVoltage[1]+battVoltage[2]+battVoltage[3]+battVoltage[4])/5;
-    Serial.print(">> Average Voltage: ");
-    Serial.println(battVoltage[5]);
-    int battVoltRound = (battVoltage[5]+0.05)*100; //Round and truncate the value to 2 decimals
-    Serial.print(">> Rounded Voltage : ");
-    Serial.println(battVoltRound);
-    battLevel = ((battVoltRound-350)*10)/7; //Calculate the battery level (as a percentage)
-    Serial.print(">> Battery Level: ");
-    Serial.println(battLevel);
-  }
-  
+
   //Show debugging information
   Serial.print("Value in A3: ");
   Serial.println(sensorValue);
@@ -984,6 +989,22 @@ void checkBattery()
   Serial.print(battChecker);
   Serial.print(" : ");
   Serial.println(battVoltage[battChecker]);
+  
+  if(battChecker == 4)  //After taking 5 samples, average the value
+  {
+    battVoltage[5]=(battVoltage[0]+battVoltage[1]+battVoltage[2]+battVoltage[3]+battVoltage[4])/5;
+    Serial.print(">> Average Voltage: ");
+    Serial.println(battVoltage[5]);
+    int battVoltRound = (battVoltage[5])*100; //Truncate the value to 2 decimals
+    if(battVoltRound > 420)
+       battVoltRound = 420;
+    Serial.print(">> Rounded Voltage : ");
+    Serial.println(battVoltRound);
+    battLevel = ((battVoltRound-380)*10)/4; //Calculate the battery level (as a percentage)
+    Serial.print(">> Battery Level: ");
+    Serial.println(battLevel);
+  }
+  
   
 }
 
