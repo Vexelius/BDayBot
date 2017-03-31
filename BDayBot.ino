@@ -426,15 +426,6 @@ void loop(){
     radio.write( &myData, sizeof(myData) );              // Send the received data back.
     radio.startListening();                              // Now, resume listening so we catch the next packets.
 
-    Serial.print(myData.keyPress);
-    Serial.print(myData.keyState);
-    Serial.print(" - ");
-    Serial.print(myData.keypadLock);
-    Serial.print(myData.configMode);
-    Serial.print(myData.statusDizzy);
-    Serial.println(myData.expression);
-    Serial.print("Greeting: ");
-    Serial.println(myData.greeting);
 
     //(M)Button: Play the Happy Birthday melody
     if((myData.keyPress == 'M')&&(myData.keyState==2))
@@ -449,9 +440,50 @@ void loop(){
       setSurprise();
     }
 
-    if(myData.expression == 1)
+    // Setting up Expressions!
+    if((myData.expression == 1)&&(myData.keyState==2))
     {
       setLaugh();
+    }
+    if((myData.expression == 2)&&(myData.keyState==2))
+    {
+      setSurprise();
+    }
+    if((myData.expression == 3)&&(myData.keyState==2))
+    {
+      setHeartEyes();
+    }
+    if((myData.expression == 4)&&(myData.keyState==2))
+    {
+      setDizzy();
+    }
+    if((myData.expression == 5)&&(myData.keyState==2))
+    {
+      setShinyEyes();
+    }
+    if((myData.expression == 6)&&(myData.keyState==2))
+    {
+      setLeftBlink();
+    }
+    if((myData.expression == 7)&&(myData.keyState==2))
+    {
+      setRightBlink();
+    }
+    if((myData.expression == 8)&&(myData.keyState==2))
+    {
+      setSadEyes();
+    }
+    if((myData.expression == 9)&&(myData.keyState==2))
+    {
+      setAngryEyes();
+    }
+    if((myData.expression == 10)&&(myData.keyState==2))
+    {
+      setPositive();
+    }
+    if((myData.expression == 11)&&(myData.keyState==2))
+    {
+      setNegative();
     }
 
     //(C)Button: Test expression
