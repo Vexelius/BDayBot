@@ -75,9 +75,9 @@ int expFrameChange[10] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0}; // The duration of each
 byte* frameIndex[15]; // This array sets the sequence of sprites that make each animation
 
 // Variables to keep track of the robot's battery level
-unsigned long prevBattCheck = 0; //When was the last time that you checked the battery voltage?
-float battVoltage[5] = {3.75, 3.75, 3.75, 3.75, 3.75}; //Store 4 samples to average
-//The fifth value in the array is made up by averaging the samples
+unsigned int battCheckCounter = 0; //When was the last time that you checked the battery voltage?
+float battVoltage[6] = {3.75, 3.75, 3.75, 3.75, 3.75}; //Store 5 samples to average
+//The sixth value in the array is made up by averaging the samples
 //I have decided to give it some starting values (around 50% of the battery's capacity)
 //in order to avoid getting an unusually low (or high!) value at the start of the program
 int battChecker = 0;  // This counter arranges the values in battVoltage
@@ -245,7 +245,7 @@ char string1[] = " Congratulations!   ";
 
 
 void setup(){
-  Serial.begin(9600);
+  Serial.begin(57600);
   m.init(); // module MAX7219
   m.setIntensity(1); // LED Intensity 0-15
   utf8ascii(string1); // Convert the text string to ASCII values
@@ -270,7 +270,7 @@ void setup(){
   radio.setDataRate(RF24_250KBPS);  //Data rate is slow, but ensures accuracy
   radio.setPALevel(RF24_PA_HIGH);   //High PA Level, to give enough range
   radio.setCRCLength(RF24_CRC_16);  //CRC at 16 bits
-  radio.setRetries(1,1);          //Max number of retries
+  radio.setRetries(15,1);          //Max number of retries
   radio.setPayloadSize(8);          //Payload size of 8bits
 
   // Open a writing and reading pipe on each radio, with opposite addresses
@@ -288,7 +288,6 @@ void loop(){
   // Start tracking the elapsed time
   unsigned long currentMillis = millis();
   unsigned long melodyMillis = millis();
-  unsigned long battCheckMillis = millis();
   
 
   // Draw the animation's frames to the led matrix  
@@ -333,11 +332,12 @@ void loop(){
   }
 
   // Check battery voltage
-  /*
-  if(battCheckMillis - prevBattCheck >= checkBattInterval)
+  
+  battCheckCounter++;
+  if(battCheckCounter >= checkBattInterval)
   {
     checkBattery();
-    prevBattCheck = battCheckMillis;  //Remember the last time the sensor value was checked
+    battCheckCounter = 0;  //Reset the counter
     if(battChecker == 4)  //When four samples have been collected
     {
       battChecker = 0;  //Restart from sample #0
@@ -356,7 +356,7 @@ void loop(){
     {
     battChecker++; //If the four samples haven't been collected, increment the counter
     }
-  }*/
+  }
   
   // Left Wheel control
   if(enableLW==true)
