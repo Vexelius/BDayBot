@@ -28,6 +28,8 @@ struct dataStruct {
   boolean keypadLock;     // When this flag is active, no input will be received fron the keypad
   boolean configMode;     // This flag determines wheter the robot is in Config Mode or not
   boolean statusDizzy;    // Is the robot feeling Dizzy?
+  int expression;         // Used to change the robot's expressions
+  char greeting[35];        // 
 } myData;                 // Data stream that will be sent to the robot
 
 // Happy Bithday: Notes in the tune
@@ -271,7 +273,7 @@ void setup(){
   radio.setPALevel(RF24_PA_HIGH);   //High PA Level, to give enough range
   radio.setCRCLength(RF24_CRC_16);  //CRC at 16 bits
   radio.setRetries(15,1);          //Max number of retries
-  radio.setPayloadSize(8);          //Payload size of 8bits
+  radio.setPayloadSize(32);          //Payload size of 32bits
 
   // Open a writing and reading pipe on each radio, with opposite addresses
   radio.openWritingPipe(addresses[1]);
@@ -424,6 +426,16 @@ void loop(){
     radio.write( &myData, sizeof(myData) );              // Send the received data back.
     radio.startListening();                              // Now, resume listening so we catch the next packets.
 
+    Serial.print(myData.keyPress);
+    Serial.print(myData.keyState);
+    Serial.print(" - ");
+    Serial.print(myData.keypadLock);
+    Serial.print(myData.configMode);
+    Serial.print(myData.statusDizzy);
+    Serial.println(myData.expression);
+    Serial.print("Greeting: ");
+    Serial.println(myData.greeting);
+
     //(M)Button: Play the Happy Birthday melody
     if((myData.keyPress == 'M')&&(myData.keyState==2))
     {
@@ -437,10 +449,9 @@ void loop(){
       setSurprise();
     }
 
-    //(B)Button: Heart eyes!
-    if((myData.keyPress == 'B')&&(myData.keyState==2))
+    if(myData.expression == 1)
     {
-    setHeartEyes();
+      setLaugh();
     }
 
     //(C)Button: Test expression
