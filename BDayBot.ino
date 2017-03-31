@@ -29,7 +29,9 @@ struct dataStruct {
   boolean configMode;     // This flag determines wheter the robot is in Config Mode or not
   boolean statusDizzy;    // Is the robot feeling Dizzy?
   int expression;         // Used to change the robot's expressions
-  char greeting[35];        // 
+  boolean candleA;        // Sets the status for the first Candle
+  boolean candleB;        // Sets the status for the second Candle
+  boolean candleC;        // Sets the status for the third Candle
 } myData;                 // Data stream that will be sent to the robot
 
 // Happy Bithday: Notes in the tune
@@ -50,9 +52,9 @@ unsigned long melodyPreviousMillis = 0; // Timer that controls when to play the 
 const int buttonA = 18;
 const int buttonB = 19;
 
-const int candleA = 14;
+const int candleA = 16;
 const int candleB = 15;
-const int candleC = 16;
+const int candleC = 14;
 
 Servo leftWheel;
 Servo rightWheel;
@@ -65,9 +67,7 @@ boolean textEnable = false;
 boolean soundEnable = false;
 boolean enableLW = false;
 boolean enableRW = false;
-boolean enableCandleA = false;
-boolean enableCandleB = false;
-boolean enableCandleC = false;
+
 
 // Variables to control the robot's animated expressions
 unsigned long previousMillis = 0; // Store the last time the Led Matrix is updated
@@ -272,8 +272,9 @@ void setup(){
   radio.setDataRate(RF24_250KBPS);  //Data rate is slow, but ensures accuracy
   radio.setPALevel(RF24_PA_HIGH);   //High PA Level, to give enough range
   radio.setCRCLength(RF24_CRC_16);  //CRC at 16 bits
-  radio.setRetries(15,1);          //Max number of retries
+  radio.setRetries(15,15);          //Max number of retries
   radio.setPayloadSize(32);          //Payload size of 32bits
+  radio.setChannel(108);
 
   // Open a writing and reading pipe on each radio, with opposite addresses
   radio.openWritingPipe(addresses[1]);
@@ -387,22 +388,6 @@ void loop(){
   rightWheel.detach();
   }
 
-  // Candlelight control
-  if(enableCandleA==true)
-  digitalWrite(candleA, HIGH);
-  else
-  digitalWrite(candleA, LOW);
-
-  if(enableCandleB==true)
-  digitalWrite(candleB, HIGH);
-  else
-  digitalWrite(candleB, LOW);
-
-  if(enableCandleC==true)
-  digitalWrite(candleC, HIGH);
-  else
-  digitalWrite(candleC, LOW);
-
 
   // Scrolling text
   if(textEnable == true)
@@ -426,6 +411,15 @@ void loop(){
     radio.write( &myData, sizeof(myData) );              // Send the received data back.
     radio.startListening();                              // Now, resume listening so we catch the next packets.
 
+     Serial.print(myData.keyPress);
+    Serial.print(myData.keyState);
+    Serial.print(" - ");
+    Serial.print(myData.candleA);
+    Serial.print(myData.candleB);
+    Serial.print(myData.candleC);
+    Serial.println(myData.expression);
+
+
 
     //(M)Button: Play the Happy Birthday melody
     if((myData.keyPress == 'M')&&(myData.keyState==2))
@@ -434,11 +428,6 @@ void loop(){
       soundEnable=true;
     }
 
-    //(A)Button: Test expression
-    if((myData.keyPress == 'A')&&(myData.keyState==2))
-    {
-      setSurprise();
-    }
 
     // Setting up Expressions!
     if((myData.expression == 1)&&(myData.keyState==2))
@@ -486,12 +475,24 @@ void loop(){
       setNegative();
     }
 
-    //(C)Button: Test expression
-    if((myData.keyPress == 'C')&&(myData.keyState==2))
-    {
-    setShinyEyes();
-    }
+      // Candlelight Control
+    if(myData.candleA==true)
+      digitalWrite(candleA, HIGH);
+    else
+      digitalWrite(candleA, LOW);
 
+    if(myData.candleB==true)
+      digitalWrite(candleB, HIGH);
+    else
+      digitalWrite(candleB, LOW);
+
+    if(myData.candleC==true)
+      digitalWrite(candleC, HIGH);
+    else
+      digitalWrite(candleC, LOW);
+
+
+    // Movement Commands
     //(U)Button: Move forward
     if(myData.keyPress == 'U')
     {
