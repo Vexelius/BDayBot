@@ -32,6 +32,8 @@ struct dataStruct {
   boolean candleA;        // Sets the status for the first Candle
   boolean candleB;        // Sets the status for the second Candle
   boolean candleC;        // Sets the status for the third Candle
+  int greetingStatus;     // This flag shows the status for the greeting | 0 = Inactive | 1 = Sent | 2 = Displayed
+  char greeting1[10];     // The first message
 } myData;                 // Data stream that will be sent to the robot
 
 // Happy Bithday: Notes in the tune
@@ -243,7 +245,7 @@ byte buffer[10];
 
 // Scrolling Text
 // While the text is being displayed, the mechanical system stops
-char string1[] = " Congratulations!   ";
+char string1[] = " Feliz Cumpleaños, Arduino!   ";
 
 
 void setup(){
@@ -417,7 +419,9 @@ void loop(){
     Serial.print(myData.candleA);
     Serial.print(myData.candleB);
     Serial.print(myData.candleC);
-    Serial.println(myData.expression);
+    Serial.print(myData.expression);
+    Serial.print(" - Data size ");
+    Serial.println(sizeof(myData));
 
 
 
@@ -475,7 +479,7 @@ void loop(){
       setNegative();
     }
 
-      // Candlelight Control
+    // Candlelight Control
     if(myData.candleA==true)
       digitalWrite(candleA, HIGH);
     else
@@ -490,6 +494,12 @@ void loop(){
       digitalWrite(candleC, HIGH);
     else
       digitalWrite(candleC, LOW);
+
+    // Party Greetings!
+    if((myData.greetingStatus==1)&&(myData.keyState==2))
+    {
+      textEnable = true;
+    }
 
 
     // Movement Commands
